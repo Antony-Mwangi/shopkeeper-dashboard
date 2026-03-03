@@ -86,14 +86,14 @@ export default function DashboardPage() {
   const calcNetProfit = (arr: Sale[]) => arr.reduce((sum, s) => sum + (s.totalPrice - s.totalBuyingPrice), 0);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-blue-800 text-white flex flex-col shadow-lg">
-        <div className="p-6 border-b border-blue-700 flex items-center gap-3">
-          <User className="w-8 h-8 text-yellow-300" />
+      <aside className="w-full md:w-64 bg-gray-800 text-white flex flex-col shadow-lg">
+        <div className="p-6 border-b border-gray-700 flex items-center gap-3">
+          <User className="w-8 h-8 text-yellow-400" />
           <div>
             <h2 className="font-bold text-lg">{user?.name || "Shopkeeper"}</h2>
-            <p className="text-sm text-blue-200">{user?.email}</p>
+            <p className="text-sm text-gray-300">{user?.email || "email@example.com"}</p>
           </div>
         </div>
 
@@ -101,8 +101,8 @@ export default function DashboardPage() {
           {["profile", "items", "sales"].map((tab) => (
             <button
               key={tab}
-              className={`w-full text-left p-2 rounded hover:bg-yellow-300 hover:text-blue-800 transition ${
-                activeTab === tab ? "bg-yellow-300 text-blue-800 font-semibold" : ""
+              className={`w-full text-left p-2 rounded hover:bg-yellow-400 hover:text-gray-900 transition ${
+                activeTab === tab ? "bg-yellow-400 text-gray-900 font-semibold" : ""
               }`}
               onClick={() => setActiveTab(tab as any)}
             >
@@ -113,24 +113,30 @@ export default function DashboardPage() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+        {/* Profile Tab */}
         {activeTab === "profile" && (
-          <div className="bg-yellow-100 rounded shadow p-8">
-            <h1 className="text-4xl font-bold text-blue-800 mb-4">
-              Welcome, {user?.name}!
+          <div className="bg-white rounded shadow p-6 md:p-8 max-w-3xl mx-auto">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Welcome, {user?.name || "User"}!
             </h1>
-            <div className="text-blue-900 text-lg">
-              <p className="mb-2"><strong>Name:</strong> {user?.name}</p>
-              <p><strong>Email:</strong> {user?.email}</p>
+            <div className="text-gray-700 text-lg space-y-2">
+              <p>
+                <strong>Name:</strong> {user?.name || "N/A"}
+              </p>
+              <p>
+                <strong>Email:</strong> {user?.email || "N/A"}
+              </p>
             </div>
           </div>
         )}
 
+        {/* Items Tab */}
         {activeTab === "items" && (
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-4xl mx-auto">
             {/* Item Form */}
-            <div className="bg-blue-50 p-6 rounded shadow">
-              <h2 className="text-2xl font-semibold mb-4 text-blue-900 flex items-center gap-2">
+            <div className="bg-white p-6 rounded shadow">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
                 <Plus className="w-5 h-5" />
                 {editingItem ? "Edit Item" : "Add Item"}
               </h2>
@@ -139,38 +145,38 @@ export default function DashboardPage() {
                   placeholder="Name"
                   value={itemForm.name}
                   onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
-                  className="border p-2 rounded"
+                  className="border p-2 rounded focus:outline-none focus:ring focus:ring-yellow-300"
                 />
                 <input
                   type="number"
                   placeholder="Selling Price"
                   value={itemForm.price}
                   onChange={(e) => setItemForm({ ...itemForm, price: Number(e.target.value) })}
-                  className="border p-2 rounded"
+                  className="border p-2 rounded focus:outline-none focus:ring focus:ring-yellow-300"
                 />
                 <input
                   type="number"
                   placeholder="Buying Price"
                   value={itemForm.buyingPrice}
                   onChange={(e) => setItemForm({ ...itemForm, buyingPrice: Number(e.target.value) })}
-                  className="border p-2 rounded"
+                  className="border p-2 rounded focus:outline-none focus:ring focus:ring-yellow-300"
                 />
                 <input
                   type="number"
                   placeholder="Quantity"
                   value={itemForm.quantity}
                   onChange={(e) => setItemForm({ ...itemForm, quantity: Number(e.target.value) })}
-                  className="border p-2 rounded"
+                  className="border p-2 rounded focus:outline-none focus:ring focus:ring-yellow-300"
                 />
                 <input
                   placeholder="Category"
                   value={itemForm.category}
                   onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}
-                  className="border p-2 rounded"
+                  className="border p-2 rounded focus:outline-none focus:ring focus:ring-yellow-300"
                 />
                 <button
                   type="submit"
-                  className="bg-blue-800 text-white py-2 rounded hover:bg-blue-900 col-span-1 md:col-span-2"
+                  className="bg-gray-800 text-white py-2 rounded hover:bg-gray-900 col-span-1 md:col-span-2 transition"
                 >
                   {editingItem ? "Update Item" : "Add Item"}
                 </button>
@@ -178,15 +184,15 @@ export default function DashboardPage() {
             </div>
 
             {/* Items List */}
-            <div className="bg-blue-50 p-6 rounded shadow">
-              <h2 className="text-2xl font-semibold mb-4 text-blue-900">Items</h2>
+            <div className="bg-white p-6 rounded shadow">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800">Items</h2>
               <ul className="space-y-2">
                 {items.map((item) => (
-                  <li key={item._id} className="flex justify-between items-center border p-2 rounded bg-white">
-                    <span className="text-blue-900">{item.name} - ${item.price}</span>
+                  <li key={item._id} className="flex justify-between items-center border p-2 rounded bg-gray-50">
+                    <span className="text-gray-800">{item.name} - ${item.price}</span>
                     <div className="flex gap-2">
                       <button onClick={() => handleEditItem(item)} title="Edit">
-                        <Edit className="text-blue-700" />
+                        <Edit className="text-blue-600" />
                       </button>
                       <button onClick={() => handleDeleteItem(item._id)} title="Delete">
                         <Trash2 className="text-red-600" />
@@ -199,13 +205,14 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Sales Tab */}
         {activeTab === "sales" && (
-          <div className="bg-yellow-100 p-6 rounded shadow space-y-4">
-            <h2 className="text-2xl font-semibold text-blue-800">Sales Summary</h2>
-            <p className="text-blue-900">Daily Sales: ${calcTotal(dailySales)}</p>
-            <p className="text-blue-900">Daily Net Profit: ${calcNetProfit(dailySales)}</p>
-            <p className="text-blue-900">Monthly Sales: ${calcTotal(monthlySales)}</p>
-            <p className="text-blue-900">Monthly Net Profit: ${calcNetProfit(monthlySales)}</p>
+          <div className="bg-white p-6 rounded shadow max-w-3xl mx-auto space-y-4">
+            <h2 className="text-2xl font-semibold text-gray-800">Sales Summary</h2>
+            <p className="text-gray-700">Daily Sales: ${calcTotal(dailySales)}</p>
+            <p className="text-gray-700">Daily Net Profit: ${calcNetProfit(dailySales)}</p>
+            <p className="text-gray-700">Monthly Sales: ${calcTotal(monthlySales)}</p>
+            <p className="text-gray-700">Monthly Net Profit: ${calcNetProfit(monthlySales)}</p>
           </div>
         )}
       </main>
