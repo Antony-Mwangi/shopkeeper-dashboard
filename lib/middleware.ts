@@ -19,17 +19,18 @@ export async function middleware(req: NextRequest) {
 
   try {
     // Verify JWT
-    const payload = verifyToken(token);
-    // Attach user payload to request headers (optional)
-    req.headers.set("x-user-id", (payload as any).id);
-    return NextResponse.next();
+    const payload = verifyToken(token) as any;
+
+    // Pass user ID to downstream requests via response header
+    const response = NextResponse.next();
+    response.headers.set("x-user-id", payload.id);
+    return response;
   } catch (err) {
     console.error("JWT verification failed:", err);
     return NextResponse.redirect(new URL("/login", req.url));
   }
 }
 
-// Apply to all routes
 export const config = {
   matcher: ["/dashboard/:path*", "/api/:path*"],
 };
