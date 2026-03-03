@@ -1,55 +1,41 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
-import { verifyToken } from "@/models/auth";
-import User from "@/models/User";
 import Item from "@/models/Item";
 import Sale from "@/models/Sale";
+import User from "@/models/User";
+import { connectDB } from "@/lib/db";
 
-export async function GET(req: Request) {
-  await connectDB();
+connectDB();
 
-  // Read cookie directly
-  const cookieHeader = req.headers.get("cookie");
-  if (!cookieHeader) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-
-  const tokenMatch = cookieHeader.match(/token=([^;]+)/);
-  if (!tokenMatch) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-
-  const token = tokenMatch[1];
-
+export async function GET() {
   try {
-    const payload = verifyToken(token) as any;
-    const userId = payload.id;
+    const user = await User.findOne(); // Single shopkeeper
+    const items = await Item.find();
+    const totalProducts = items.length;
+    const totalStockQuantity = items.reduce((sum, i) => sum + i.quantity, 0);
 
-    // Fetch user info
-    const user = await User.findById(userId).select("-password");
-    if (!user) return NextResponse.json({ message: "User not found" }, { status: 401 });
-
-    // Stock summary
-    const totalProducts = await Item.countDocuments();
-    const totalStockQuantityAgg = await Item.aggregate([{ $group: { _id: null, total: { $sum: "$quantity" } } }]);
-    const totalStockQuantity = totalStockQuantityAgg[0]?.total || 0;
-
-    // Sales summary
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    const totalTodayAgg = await Sale.aggregate([{ $match: { createdAt: { $gte: startOfToday } } }, { $group: { _id: null, total: { $sum: "$totalAmount" } } }]);
-    const totalMonthAgg = await Sale.aggregate([{ $match: { createdAt: { $gte: startOfMonth } } }, { $group: { _id: null, total: { $sum: "$totalAmount" } } }]);
-    const totalYearAgg = await Sale.aggregate([{ $match: { createdAt: { $gte: startOfYear } } }, { $group: { _id: null, total: { $sum: "$totalAmount" } } }]);
+    const dailySales = await Sale.find({ createdAt: { $gte: startOfDay } }).populate("itemId");
+    const monthlySales = await Sale.find({ createdAt: { $gte: startOfMonth } }).populate("itemId");
+
+    const dailySalesTotal = dailySales.reduce((sum, s) => sum + s.totalAmount, 0);
+    const monthlySalesTotal = monthlySales.reduce((sum, s) => sum + s.totalAmount, 0);
+    const dailyNetProfit = dailySales.reduce((sum, s) => sum + (s.itemId.sellingPrice - s.itemId.buyingPrice) * s.quantitySold, 0);
+    const monthlyNetProfit = monthlySales.reduce((sum, s) => sum + (s.itemId.sellingPrice - s.itemId.buyingPrice) * s.quantitySold, 0);
 
     return NextResponse.json({
       user,
+      items,
       totalProducts,
       totalStockQuantity,
-      salesToday: totalTodayAgg[0]?.total || 0,
-      salesMonth: totalMonthAgg[0]?.total || 0,
-      salesYear: totalYearAgg[0]?.total || 0,
+      dailySalesTotal,
+      monthlySalesTotal,
+      dailyNetProfit,
+      monthlyNetProfit,
     });
   } catch (err) {
-    console.error("Dashboard fetch error:", err);
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ message: "Failed to fetch dashboard" }, { status: 500 });
   }
 }
