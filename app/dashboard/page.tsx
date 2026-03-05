@@ -210,7 +210,7 @@ export default function DashboardPage() {
           <div className="bg-white p-6 rounded shadow max-w-3xl mx-auto space-y-4">
             <h2 className="text-2xl font-semibold text-gray-800">Sales Summary</h2>
             <p className="text-gray-700">Daily Sales: ${calcTotal(dailySales)}</p>
-            <p className="text-gray-700">Daily Net Profit: ${calcNetProfit(dailySales)}</p>
+            <p className="text-gray-700">Daily Net Profit: {calcNetProfit(dailySales)}</p>
             <p className="text-gray-700">Monthly Sales: ${calcTotal(monthlySales)}</p>
             <p className="text-gray-700">Monthly Net Profit: ${calcNetProfit(monthlySales)}</p>
           </div>
