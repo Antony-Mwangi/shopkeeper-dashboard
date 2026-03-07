@@ -93,6 +93,7 @@
 
 import { useEffect, useState } from "react";
 import { Menu, X, User, Settings, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import Footer from "@/components/Footer"; // Adjust the import path as needed
 
 type UserProfile = {
   _id: string;
@@ -159,8 +160,8 @@ export default function DashboardPage() {
     );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Desktop Sidebar - Fixed positioning with proper width */}
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Desktop Sidebar */}
       <aside
         className={`hidden lg:block fixed top-0 left-0 h-full bg-white shadow-xl transition-all duration-300 ease-in-out z-40
           ${sidebarOpen ? "w-64" : "w-20"}`}
@@ -307,8 +308,8 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Main Content - Uses padding instead of margin to prevent covering */}
-      <div className={`transition-all duration-300 ease-in-out
+      {/* Main Content - Uses flex col to push footer to bottom */}
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out
         ${sidebarOpen ? "lg:pl-64" : "lg:pl-20"}`}
       >
         {/* Header */}
@@ -370,12 +371,8 @@ export default function DashboardPage() {
           </div>
         </main>
 
-        {/* Footer */}
-        <footer className="bg-white border-t border-gray-100 py-4 px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center text-sm text-gray-500">
-            <p>© 2026 ShopFlow. All rights reserved.</p>
-          </div>
-        </footer>
+        {/* Footer - Now properly integrated and will never be overlapped */}
+        <Footer />
       </div>
     </div>
   );
