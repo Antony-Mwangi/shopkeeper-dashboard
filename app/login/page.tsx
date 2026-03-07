@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
-import Footer from "@/components/Footer"; // Adjust the import path as needed
+import Footer from "@/components/Footer"; 
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Main Content - Flex col to push footer to bottom */}
+      
       <div className="flex-1 flex flex-col justify-center items-center px-4 py-12">
         <Link 
           href="/" 

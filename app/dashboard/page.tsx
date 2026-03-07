@@ -1,99 +1,10 @@
 
-// "use client";
-
-// import { useEffect, useState } from "react";
-
-// type UserProfile = {
-//   _id: string;
-//   name: string;
-//   email: string;
-//   profileImage?: string;
-// };
-
-// export default function DashboardPage() {
-//   const [user, setUser] = useState<UserProfile | null>(null);
-//   const [loading, setLoading] = useState(true);
-//   const [unauthorized, setUnauthorized] = useState(false);
-
-//   useEffect(() => {
-//     async function fetchUser() {
-//       try {
-//         const res = await fetch("/api/auth/me", {
-//           credentials: "include", 
-//         });
-
-//         if (res.status === 401) {
-//           setUnauthorized(true);
-//           return;
-//         }
-
-//         const data: UserProfile = await res.json();
-//         setUser(data);
-//       } catch (err) {
-//         console.error(err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     }
-
-//     fetchUser();
-//   }, []);
-
-//   if (loading)
-//     return (
-//       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-//         <p className="text-gray-700 text-lg">Loading profile...</p>
-//       </div>
-//     );
-
-//   if (unauthorized)
-//     return (
-//       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-//         <p className="text-gray-700 text-lg mb-4">
-//           You are not logged in.
-//         </p>
-//         <a
-//           href="/login"
-//           className="text-white bg-blue-600 px-6 py-2 rounded hover:bg-blue-700 transition"
-//         >
-//           Go to Login
-//         </a>
-//       </div>
-//     );
-
-//   return (
-//     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-//       <div className="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full space-y-6">
-//         <div className="flex flex-col items-center">
-//           <img
-//             src={user?.profileImage || "/default-avatar.png"}
-//             alt="Profile"
-//             className="w-24 h-24 rounded-full object-cover mb-4"
-//           />
-//         </div>
-
-//         <div className="space-y-4 text-gray-700">
-//           <div>
-//             <label className="font-semibold">Full Name:</label>
-//             <p>{user?.name}</p>
-//           </div>
-
-//           <div>
-//             <label className="font-semibold">Email:</label>
-//             <p>{user?.email}</p>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
 
 "use client";
 
 import { useEffect, useState } from "react";
 import { Menu, X, User, Settings, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import Footer from "@/components/Footer"; // Adjust the import path as needed
+import Footer from "@/components/Footer"; 
 
 type UserProfile = {
   _id: string;
@@ -235,7 +146,7 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      {/* Mobile Sidebar */}
+      
       <aside
         className={`lg:hidden fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
           ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
@@ -300,7 +211,7 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      {/* Mobile Overlay */}
+      
       {mobileSidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
@@ -308,11 +219,11 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Main Content - Uses flex col to push footer to bottom */}
+      
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out
         ${sidebarOpen ? "lg:pl-64" : "lg:pl-20"}`}
       >
-        {/* Header */}
+        
         <header className="sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm">
           <div className="flex items-center justify-between px-6 py-4">
             <button 
@@ -331,7 +242,7 @@ export default function DashboardPage() {
         </header>
 
         <main className="flex-1 p-6 lg:p-8">
-          {/* Profile Section */}
+          
           <div
             id="profile"
             className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-4xl mx-auto"
