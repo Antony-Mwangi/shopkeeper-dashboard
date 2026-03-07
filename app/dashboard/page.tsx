@@ -93,7 +93,7 @@
 
 import { useEffect, useState } from "react";
 import { Menu, X, User, Settings, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import Footer from "@/components/Footer"; // Adjust the import path as needed
+//import Footer from "@/components/Footer"; // Adjust the import path as needed
 
 type UserProfile = {
   _id: string;
@@ -372,7 +372,6 @@ export default function DashboardPage() {
         </main>
 
         {/* Footer - Now properly integrated and will never be overlapped */}
-        <Footer />
       </div>
     </div>
   );
