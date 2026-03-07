@@ -240,7 +240,7 @@ export default function DashboardPage() {
     async function fetchUser() {
       try {
         const res = await fetch("/api/auth/me", {
-          credentials: "include", // ✅ send cookies
+          credentials: "include", // ⚡ send cookies
         });
 
         if (res.status === 401) {
@@ -251,7 +251,7 @@ export default function DashboardPage() {
         const data: UserProfile = await res.json();
         setUser(data);
       } catch (err) {
-        console.error("Error fetching user:", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -296,12 +296,12 @@ export default function DashboardPage() {
         <div className="space-y-4 text-gray-700">
           <div>
             <label className="font-semibold">Full Name:</label>
-            <p>{user?.name || "N/A"}</p>
+            <p>{user?.name}</p>
           </div>
 
           <div>
             <label className="font-semibold">Email:</label>
-            <p>{user?.email || "N/A"}</p>
+            <p>{user?.email}</p>
           </div>
         </div>
       </div>
