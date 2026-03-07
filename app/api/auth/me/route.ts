@@ -1,23 +1,28 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import User from "../../../models/User";
-import { connectDB } from "../../../lib/db";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import User from "../../../../models/User";
+import { connectDB } from "../../../../lib/db";
+
+interface DecodedToken extends JwtPayload {
+  id: string;
+}
 
 export async function GET() {
   try {
     await connectDB();
 
-    // Await cookies() because in this Next.js version it returns a Promise
-    const cookiesList = await cookies(); 
-    const tokenCookie = cookiesList.get("token"); 
+    // Await cookies() in Turbopack Next.js 16.x
+    const cookiesList = await cookies();
+    const tokenCookie = cookiesList.get("token");
     const token = tokenCookie?.value;
 
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    // Type assertion: decoded is an object with id
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
 
     const user = await User.findById(decoded.id).select("-password");
 
@@ -27,7 +32,7 @@ export async function GET() {
 
     return NextResponse.json(user);
   } catch (err) {
-    console.error("Error in /api/me:", err);
+    console.error("Error in /api/auth/me:", err);
     return NextResponse.json({ message: "Invalid token" }, { status: 401 });
   }
 }
