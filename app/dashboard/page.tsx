@@ -159,10 +159,10 @@ export default function DashboardPage() {
     );
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Desktop Sidebar */}
+    <div className="min-h-screen bg-gray-50">
+      {/* Desktop Sidebar - Fixed positioning with proper width */}
       <aside
-        className={`hidden lg:block fixed inset-y-0 left-0 z-40 bg-white shadow-xl transition-all duration-300 ease-in-out
+        className={`hidden lg:block fixed top-0 left-0 h-full bg-white shadow-xl transition-all duration-300 ease-in-out z-40
           ${sidebarOpen ? "w-64" : "w-20"}`}
       >
         <div className="flex flex-col h-full relative">
@@ -307,9 +307,9 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Main Content */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out
-        ${sidebarOpen ? "lg:ml-64" : "lg:ml-20"}`}
+      {/* Main Content - Uses padding instead of margin to prevent covering */}
+      <div className={`transition-all duration-300 ease-in-out
+        ${sidebarOpen ? "lg:pl-64" : "lg:pl-20"}`}
       >
         {/* Header */}
         <header className="sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm">
@@ -369,6 +369,13 @@ export default function DashboardPage() {
             </div>
           </div>
         </main>
+
+        {/* Footer */}
+        <footer className="bg-white border-t border-gray-100 py-4 px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center text-sm text-gray-500">
+            <p>© 2026 ShopFlow. All rights reserved.</p>
+          </div>
+        </footer>
       </div>
     </div>
   );
