@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production", // only secure in prod
+      secure: process.env.NODE_ENV === "production"
     });
 
     return res;
