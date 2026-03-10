@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Footer from "@/components/Footer";
 import { 
   BarChart3, 
   Package, 
@@ -164,4 +165,5 @@ export default function HomePage() {
       </section>
     </main>
   );
+<footer/>
 }
