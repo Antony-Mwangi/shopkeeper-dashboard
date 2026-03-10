@@ -12,10 +12,12 @@ type Product = {
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("");
   const [category, setCategory] = useState("");
+
   const [loading, setLoading] = useState(true);
 
   // Fetch products
@@ -62,6 +64,7 @@ export default function ProductsPage() {
         setPrice("");
         setQuantity("");
         setCategory("");
+
         fetchProducts();
       }
     } catch (error) {
@@ -71,39 +74,44 @@ export default function ProductsPage() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        Loading products...
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="min-h-screen bg-gray-100 p-8 space-y-8">
 
       {/* PAGE TITLE */}
       <div>
         <h1 className="text-3xl font-bold text-gray-800">
           Inventory Management
         </h1>
-        <p className="text-gray-500">
+
+        <p className="text-gray-500 mt-1">
           Manage products in your shop
         </p>
       </div>
 
-      {/* ADD PRODUCT FORM */}
-      <div className="bg-white shadow rounded-xl p-6">
-        <h2 className="text-xl font-semibold mb-4">Add Product</h2>
+      {/* ADD PRODUCT CARD */}
+      <div className="bg-white shadow-lg rounded-xl p-6">
+
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+          Add New Product
+        </h2>
 
         <form
           onSubmit={handleAddProduct}
           className="grid md:grid-cols-4 gap-4"
         >
+
           <input
             type="text"
             placeholder="Product name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="border p-2 rounded"
             required
+            className="border border-gray-300 rounded-lg p-3 text-gray-800 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
           />
 
           <input
@@ -111,8 +119,8 @@ export default function ProductsPage() {
             placeholder="Price"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            className="border p-2 rounded"
             required
+            className="border border-gray-300 rounded-lg p-3 text-gray-800 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
           />
 
           <input
@@ -120,8 +128,8 @@ export default function ProductsPage() {
             placeholder="Quantity"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
-            className="border p-2 rounded"
             required
+            className="border border-gray-300 rounded-lg p-3 text-gray-800 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
           />
 
           <input
@@ -129,21 +137,23 @@ export default function ProductsPage() {
             placeholder="Category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="border p-2 rounded"
+            className="border border-gray-300 rounded-lg p-3 text-gray-800 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
           />
 
           <button
             type="submit"
-            className="md:col-span-4 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+            className="md:col-span-4 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
           >
             Add Product
           </button>
+
         </form>
       </div>
 
-      {/* PRODUCTS TABLE */}
-      <div className="bg-white shadow rounded-xl p-6 overflow-x-auto">
-        <h2 className="text-xl font-semibold mb-4">
+      {/* PRODUCT TABLE */}
+      <div className="bg-white shadow-lg rounded-xl p-6 overflow-x-auto">
+
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">
           Product Inventory
         </h2>
 
@@ -152,42 +162,57 @@ export default function ProductsPage() {
             No products added yet.
           </p>
         ) : (
-          <table className="w-full text-left border-collapse">
+
+          <table className="w-full border-collapse">
+
             <thead>
-              <tr className="border-b bg-gray-100">
-                <th className="p-3">Product</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Price</th>
-                <th className="p-3">Quantity</th>
+
+              <tr className="bg-gray-100 text-gray-700 border-b">
+
+                <th className="p-4 text-left">Product</th>
+                <th className="p-4 text-left">Category</th>
+                <th className="p-4 text-left">Price</th>
+                <th className="p-4 text-left">Quantity</th>
+
               </tr>
+
             </thead>
 
             <tbody>
+
               {products.map((product) => (
+
                 <tr
                   key={product._id}
-                  className="border-b hover:bg-gray-50"
+                  className="border-b hover:bg-gray-50 transition"
                 >
-                  <td className="p-3 font-medium">
+
+                  <td className="p-4 font-medium text-gray-800">
                     {product.name}
                   </td>
 
-                  <td className="p-3">
+                  <td className="p-4 text-gray-600">
                     {product.category || "General"}
                   </td>
 
-                  <td className="p-3">
+                  <td className="p-4 text-gray-700">
                     ${product.price}
                   </td>
 
-                  <td className="p-3">
+                  <td className="p-4 text-gray-700">
                     {product.quantity}
                   </td>
+
                 </tr>
+
               ))}
+
             </tbody>
+
           </table>
+
         )}
+
       </div>
 
     </div>
