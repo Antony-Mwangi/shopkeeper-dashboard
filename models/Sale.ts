@@ -1,14 +1,24 @@
 import mongoose, { Schema, model, models } from "mongoose";
 
-const SaleSchema = new Schema(
-  {
-    itemId: { type: mongoose.Schema.Types.ObjectId, ref: "Item", required: true },
-    quantitySold: { type: Number, required: true },
-    totalAmount: { type: Number, required: true },
-    netProfit: { type: Number, required: true },
-    createdAt: { type: Date, default: Date.now },
-  },
-  { versionKey: false }
-);
+export interface Sale {
+  productId: string;
+  productName: string;
+  quantity: number;
+  price: number;
+  total: number;
+  date: Date;
+  customerName?: string;
+}
 
-export default models.Sale || model("Sale", SaleSchema);
+const SaleSchema = new Schema<Sale>({
+  productId: { type: String, required: true },
+  productName: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true },
+  total: { type: Number, required: true },
+  date: { type: Date, default: Date.now },
+  customerName: { type: String },
+});
+
+const SaleModel = models.Sale || model<Sale>("Sale", SaleSchema);
+export default SaleModel;
