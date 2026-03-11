@@ -288,14 +288,14 @@ export default function DashboardPage() {
   if (unauthorized)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <Link href="/login" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+        <Link href="/login" className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">
           Login First
         </Link>
       </div>
     );
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex bg-gray-100 text-gray-900">
 
       {/* SIDEBAR */}
       <aside
@@ -305,44 +305,44 @@ export default function DashboardPage() {
       >
         <div className="flex items-center justify-center h-16 border-b relative">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded">
+            <div className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded font-bold">
               S
             </div>
-            {sidebarOpen && <span className="font-semibold text-gray-800">ShopFlow</span>}
+            {sidebarOpen && <span className="text-lg font-bold text-gray-900">ShopFlow</span>}
           </div>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="absolute -right-3 top-5 bg-white border rounded-full p-1 shadow"
           >
-            {sidebarOpen ? <ChevronLeft size={16} className="text-gray-600" /> : <ChevronRight size={16} className="text-gray-600" />}
+            {sidebarOpen ? <ChevronLeft size={16} className="text-gray-900" /> : <ChevronRight size={16} className="text-gray-900" />}
           </button>
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition">
-            <User size={20} className="text-gray-600" /> {sidebarOpen && "Profile"}
+          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 font-medium text-gray-900">
+            <User size={20} className="text-gray-900" /> {sidebarOpen && "Profile"}
           </Link>
-          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition">
-            <Package size={20} className="text-gray-600" /> {sidebarOpen && "Products"}
+          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 font-medium text-gray-900">
+            <Package size={20} className="text-gray-900" /> {sidebarOpen && "Products"}
           </Link>
-          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition">
-            <Package size={20} className="text-gray-600" /> {sidebarOpen && "Sales"}
+          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 font-medium text-gray-900">
+            <Package size={20} className="text-gray-900" /> {sidebarOpen && "Sales"}
           </Link>
-          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition">
-            <Settings size={20} className="text-gray-600" /> {sidebarOpen && "Settings"}
+          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 font-medium text-gray-900">
+            <Settings size={20} className="text-gray-900" /> {sidebarOpen && "Settings"}
           </Link>
-          <Link href="/logout" className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 text-red-600 font-medium transition">
-            <LogOut size={20} className="text-red-500" /> {sidebarOpen && "Logout"}
+          <Link href="/logout" className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-200 font-medium text-red-700">
+            <LogOut size={20} className="text-red-700" /> {sidebarOpen && "Logout"}
           </Link>
         </nav>
 
         {sidebarOpen && user && (
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t">
             <div className="flex items-center gap-3">
-              <img src={user.profileImage || "/default-avatar.png"} className="w-10 h-10 rounded-full object-cover border border-gray-200" />
+              <img src={user.profileImage || "/default-avatar.png"} className="w-10 h-10 rounded-full object-cover border" />
               <div>
-                <p className="text-sm font-medium text-gray-800">{user.name}</p>
-                <p className="text-xs text-gray-500">{user.email}</p>
+                <p className="text-sm font-bold text-gray-900">{user.name}</p>
+                <p className="text-xs font-medium text-gray-700">{user.email}</p>
               </div>
             </div>
           </div>
@@ -355,105 +355,76 @@ export default function DashboardPage() {
           mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h1 className="font-semibold text-lg text-gray-800">ShopFlow</h1>
-          <button onClick={() => setMobileSidebarOpen(false)}>
-            <X className="text-gray-600" />
-          </button>
+        <div className="flex items-center justify-between p-4 border-b">
+          <h1 className="font-bold text-lg text-gray-900">ShopFlow</h1>
+          <button onClick={() => setMobileSidebarOpen(false)}><X className="text-gray-900" /></button>
         </div>
         <nav className="p-4 space-y-2">
-          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition">
-            <User size={20} className="text-gray-600" /> Profile
+          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 font-medium text-gray-900">
+            <User size={20} className="text-gray-900" /> Profile
           </Link>
-          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition">
-            <Package size={20} className="text-gray-600" /> Products
+          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 font-medium text-gray-900">
+            <Package size={20} className="text-gray-900" /> Products
           </Link>
-          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition">
-            <Package size={20} className="text-gray-600" /> Sales
+          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 font-medium text-gray-900">
+            <Package size={20} className="text-gray-900" /> Sales
           </Link>
-          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 font-medium transition">
-            <Settings size={20} className="text-gray-600" /> Settings
-          </Link>
-          <Link href="/logout" className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 text-red-600 font-medium transition">
-            <LogOut size={20} className="text-red-500" /> Logout
+          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 font-medium text-gray-900">
+            <Settings size={20} className="text-gray-900" /> Settings
           </Link>
         </nav>
       </aside>
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col min-h-screen">
-        <header className="lg:hidden h-16 bg-white border-b border-gray-200 flex items-center px-6">
-          <button onClick={() => setMobileSidebarOpen(true)}>
-            <Menu className="text-gray-600" />
-          </button>
-          <h2 className="ml-4 font-semibold text-gray-800">Dashboard</h2>
+        <header className="lg:hidden h-16 bg-white border-b flex items-center px-6">
+          <button onClick={() => setMobileSidebarOpen(true)}><Menu className="text-gray-900" /></button>
+          <h2 className="ml-4 font-bold text-gray-900">Dashboard</h2>
         </header>
 
         <main className="flex-1 p-8 overflow-y-auto">
-          <div className="max-w-3xl mx-auto space-y-8">
+          <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
 
-            {/* PAGE TITLE */}
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">
-                Profile Settings
-              </h1>
-              <p className="text-gray-500 mt-1">
-                Manage your account information
-              </p>
+            <h2 className="text-2xl font-black text-gray-900 mb-6">Edit Profile</h2>
+
+            <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
+              <img src={user?.profileImage || "/default-avatar.png"} className="w-24 h-24 rounded-xl object-cover border border-gray-300" />
+              <div>
+                <p className="text-lg font-bold text-gray-900">{user?.name}</p>
+                <p className="text-gray-700 font-medium">{user?.email}</p>
+              </div>
             </div>
 
-            {/* PROFILE CARD */}
-            <div className="bg-white shadow-lg rounded-xl p-6">
+            <form onSubmit={updateProfile} className="space-y-6">
 
-              <h2 className="text-xl font-semibold text-gray-800 mb-6">
-                Edit Profile
-              </h2>
-
-              <div className="flex flex-col md:flex-row items-center gap-6 mb-8 pb-6 border-b border-gray-200">
-                <img 
-                  src={user?.profileImage || "/default-avatar.png"} 
-                  className="w-24 h-24 rounded-xl object-cover border border-gray-200" 
+              <div>
+                <label className="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">Full Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full border border-gray-400 rounded-lg p-3 text-gray-900 font-medium bg-gray-50 focus:bg-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 outline-none"
                 />
-                <div>
-                  <p className="text-lg font-medium text-gray-800">{user?.name}</p>
-                  <p className="text-gray-500">{user?.email}</p>
-                </div>
               </div>
 
-              <form onSubmit={updateProfile} className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">Profile Image</label>
+                <input
+                  type="file"
+                  onChange={(e: any) => setImage(e.target.files[0])}
+                  className="w-full border border-gray-400 rounded-lg p-3 text-gray-900 font-medium bg-gray-50 focus:bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-200 file:text-gray-900 file:font-medium hover:file:bg-gray-300 cursor-pointer"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                </div>
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-bold transition w-full md:w-auto"
+              >
+                Update Profile
+              </button>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Profile Image
-                  </label>
-                  <input
-                    type="file"
-                    onChange={(e: any) => setImage(e.target.files[0])}
-                    className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-gray-700 file:font-medium hover:file:bg-gray-200 cursor-pointer"
-                  />
-                </div>
+            </form>
 
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-medium w-full md:w-auto"
-                >
-                  Update Profile
-                </button>
-
-              </form>
-            </div>
           </div>
         </main>
       </div>
