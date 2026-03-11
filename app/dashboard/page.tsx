@@ -403,7 +403,8 @@ export default function DashboardPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-gray-400 rounded-lg p-3 text-gray-900 font-medium bg-gray-50 focus:bg-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full border border-gray-400 rounded-lg p-3 text-gray-900 font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Enter your full name"
                 />
               </div>
 
@@ -412,7 +413,7 @@ export default function DashboardPage() {
                 <input
                   type="file"
                   onChange={(e: any) => setImage(e.target.files[0])}
-                  className="w-full border border-gray-400 rounded-lg p-3 text-gray-900 font-medium bg-gray-50 focus:bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-200 file:text-gray-900 file:font-medium hover:file:bg-gray-300 cursor-pointer"
+                  className="w-full border border-gray-400 rounded-lg p-3 text-gray-900 font-medium bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-gray-900 file:font-medium hover:file:bg-gray-200 cursor-pointer"
                 />
               </div>
 
