@@ -217,11 +217,16 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Package } from "lucide-react";
+import { useEffect, useState } from "react";
 
-type SaleRecord = {
+type Product = {
+  _id: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
+
+type Sale = {
   _id: string;
   productName: string;
   quantity: number;
@@ -231,107 +236,126 @@ type SaleRecord = {
   customerName?: string;
 };
 
-export default function SalesPage() {
-  const [sales, setSales] = useState<SaleRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function RecordSalePage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
+
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [quantity, setQuantity] = useState<number>(1);
+  const [customerName, setCustomerName] = useState("");
 
   useEffect(() => {
-    async function fetchSales() {
-      try {
-        const res = await fetch("/api/sales");
-        const data = await res.json();
-        setSales(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    async function fetchProducts() {
+      const res = await fetch("/api/products");
+      const data = await res.json();
+      setProducts(data);
     }
+    async function fetchSales() {
+      const res = await fetch("/api/sales");
+      const data = await res.json();
+      setSales(data);
+    }
+    fetchProducts();
     fetchSales();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-white text-black p-8">
-      
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Record Sale & Recent Sales</h1>
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 text-black font-semibold hover:text-blue-700"
-        >
-          <Package size={18} /> Back to Dashboard
-        </Link>
-      </div>
+  async function handleSale(e: React.FormEvent) {
+    e.preventDefault();
+    await fetch("/api/sales", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId: selectedProduct, quantity, customerName }),
+    });
+    setQuantity(1);
+    setCustomerName("");
+    setSelectedProduct("");
+    const res = await fetch("/api/sales");
+    const data = await res.json();
+    setSales(data);
+  }
 
-      {/* RECORD SALE FORM */}
-      <div className="bg-white border border-black rounded-lg shadow p-6 mb-8">
-        <h2 className="text-xl font-bold mb-4">Record a New Sale</h2>
-        <form className="space-y-4">
-          <div>
-            <label className="block font-bold mb-1">Product Name</label>
-            <input
-              type="text"
-              placeholder="Enter product name"
-              className="w-full border border-black p-3 rounded text-black bg-white focus:ring-2 focus:ring-blue-700 outline-none"
-            />
-          </div>
-          <div>
-            <label className="block font-bold mb-1">Quantity</label>
-            <input
-              type="number"
-              placeholder="Enter quantity"
-              className="w-full border border-black p-3 rounded text-black bg-white focus:ring-2 focus:ring-blue-700 outline-none"
-            />
-          </div>
-          <div>
-            <label className="block font-bold mb-1">Customer Name</label>
-            <input
-              type="text"
-              placeholder="Customer (optional)"
-              className="w-full border border-black p-3 rounded text-black bg-white focus:ring-2 focus:ring-blue-700 outline-none"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-700 hover:bg-brown-700 text-white font-bold px-6 py-3 rounded"
+  return (
+    <div className="min-h-screen p-8 text-black">
+
+      <h1 className="text-3xl font-bold mb-6 text-black">Record Sale</h1>
+
+      {/* SALE FORM */}
+      <form onSubmit={handleSale} className="space-y-5 mb-10">
+
+        <div>
+          <label className="block mb-2 font-bold text-black">Select Product</label>
+          <select
+            value={selectedProduct}
+            onChange={(e) => setSelectedProduct(e.target.value)}
+            className="w-full p-3 border border-black text-black rounded-lg outline-none"
+            required
           >
-            Record Sale
-          </button>
-        </form>
-      </div>
+            <option value="" disabled>Select a product</option>
+            {products.map((p) => (
+              <option key={p._id} value={p._id}>{p.name} - ${p.price}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block mb-2 font-bold text-black">Quantity</label>
+          <input
+            type="number"
+            value={quantity}
+            min={1}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            className="w-full p-3 border border-black text-black rounded-lg outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block mb-2 font-bold text-black">Customer Name</label>
+          <input
+            type="text"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            className="w-full p-3 border border-black text-black rounded-lg outline-none"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="px-6 py-3 border border-black text-black font-bold rounded-lg hover:bg-gray-100 transition"
+        >
+          Record Sale
+        </button>
+
+      </form>
 
       {/* RECENT SALES TABLE */}
-      <div className="bg-white border border-black rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold mb-4">Recent Sales</h2>
-        {loading ? (
-          <p>Loading sales...</p>
-        ) : (
-          <table className="w-full border-collapse border border-black text-black">
-            <thead>
-              <tr className="bg-blue-100 text-black font-bold">
-                <th className="border border-black p-2">Date</th>
-                <th className="border border-black p-2">Product</th>
-                <th className="border border-black p-2">Quantity</th>
-                <th className="border border-black p-2">Price</th>
-                <th className="border border-black p-2">Total</th>
-                <th className="border border-black p-2">Customer</th>
+      <h2 className="text-2xl font-bold mb-4 text-black">Recent Sales</h2>
+
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-black">
+          <thead>
+            <tr>
+              <th className="border border-black p-3 text-black">Product</th>
+              <th className="border border-black p-3 text-black">Quantity</th>
+              <th className="border border-black p-3 text-black">Price</th>
+              <th className="border border-black p-3 text-black">Total</th>
+              <th className="border border-black p-3 text-black">Customer</th>
+              <th className="border border-black p-3 text-black">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sales.map((sale) => (
+              <tr key={sale._id}>
+                <td className="border border-black p-3 text-black">{sale.productName}</td>
+                <td className="border border-black p-3 text-black">{sale.quantity}</td>
+                <td className="border border-black p-3 text-black">${sale.price}</td>
+                <td className="border border-black p-3 text-black">${sale.total}</td>
+                <td className="border border-black p-3 text-black">{sale.customerName || "-"}</td>
+                <td className="border border-black p-3 text-black">{new Date(sale.date).toLocaleString()}</td>
               </tr>
-            </thead>
-            <tbody>
-              {sales.map((sale) => (
-                <tr key={sale._id} className="hover:bg-gray-100">
-                  <td className="border border-black p-2">{new Date(sale.date).toLocaleDateString()}</td>
-                  <td className="border border-black p-2">{sale.productName}</td>
-                  <td className="border border-black p-2">{sale.quantity}</td>
-                  <td className="border border-black p-2">{sale.price}</td>
-                  <td className="border border-black p-2">{sale.total}</td>
-                  <td className="border border-black p-2">{sale.customerName || "-"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+            ))}
+          </tbody>
+        </table>
       </div>
 
     </div>
