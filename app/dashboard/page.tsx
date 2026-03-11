@@ -274,90 +274,132 @@ export default function RecordSalePage() {
     setSales(data);
   }
 
+  const selectedProductDetails = products.find(p => p._id === selectedProduct);
+
   return (
-    <div className="min-h-screen p-8 text-black">
+    <div className="min-h-screen bg-gray-100 p-8">
 
-      <h1 className="text-3xl font-bold mb-6 text-black">Record Sale</h1>
-
-      {/* SALE FORM */}
-      <form onSubmit={handleSale} className="space-y-5 mb-10">
-
-        <div>
-          <label className="block mb-2 font-bold text-black">Select Product</label>
-          <select
-            value={selectedProduct}
-            onChange={(e) => setSelectedProduct(e.target.value)}
-            className="w-full p-3 border border-black text-black rounded-lg outline-none"
-            required
-          >
-            <option value="" disabled>Select a product</option>
-            {products.map((p) => (
-              <option key={p._id} value={p._id}>{p.name} - ${p.price}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block mb-2 font-bold text-black">Quantity</label>
-          <input
-            type="number"
-            value={quantity}
-            min={1}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            className="w-full p-3 border border-black text-black rounded-lg outline-none"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-bold text-black">Customer Name</label>
-          <input
-            type="text"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="w-full p-3 border border-black text-black rounded-lg outline-none"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="px-6 py-3 border border-black text-black font-bold rounded-lg hover:bg-gray-100 transition"
-        >
-          Record Sale
-        </button>
-
-      </form>
-
-      {/* RECENT SALES TABLE */}
-      <h2 className="text-2xl font-bold mb-4 text-black">Recent Sales</h2>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-black">
-          <thead>
-            <tr>
-              <th className="border border-black p-3 text-black">Product</th>
-              <th className="border border-black p-3 text-black">Quantity</th>
-              <th className="border border-black p-3 text-black">Price</th>
-              <th className="border border-black p-3 text-black">Total</th>
-              <th className="border border-black p-3 text-black">Customer</th>
-              <th className="border border-black p-3 text-black">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sales.map((sale) => (
-              <tr key={sale._id}>
-                <td className="border border-black p-3 text-black">{sale.productName}</td>
-                <td className="border border-black p-3 text-black">{sale.quantity}</td>
-                <td className="border border-black p-3 text-black">${sale.price}</td>
-                <td className="border border-black p-3 text-black">${sale.total}</td>
-                <td className="border border-black p-3 text-black">{sale.customerName || "-"}</td>
-                <td className="border border-black p-3 text-black">{new Date(sale.date).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* PAGE TITLE */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Record Sale</h1>
+        <p className="text-gray-500 mt-1">Process customer purchases</p>
       </div>
 
+      {/* SALE FORM CARD */}
+      <div className="bg-white shadow-lg rounded-xl p-6 mb-8">
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">New Sale Transaction</h2>
+
+        <form onSubmit={handleSale} className="space-y-6">
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Product
+              </label>
+              <select
+                value={selectedProduct}
+                onChange={(e) => setSelectedProduct(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                required
+              >
+                <option value="" disabled>Choose a product</option>
+                {products.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name} - ${p.price} ({p.quantity} in stock)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quantity
+              </label>
+              <input
+                type="number"
+                value={quantity}
+                min={1}
+                max={selectedProductDetails?.quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                required
+              />
+              {selectedProductDetails && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Available: {selectedProductDetails.quantity} units
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Customer Name (optional)
+            </label>
+            <input
+              type="text"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              placeholder="Enter customer name"
+              className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          <div className="pt-4">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+            >
+              Record Sale
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      {/* RECENT SALES CARD */}
+      <div className="bg-white shadow-lg rounded-xl p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">Recent Sales</h2>
+          <span className="text-sm text-gray-500">{sales.length} transactions</span>
+        </div>
+
+        {sales.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">No sales recorded yet</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100 border-b border-gray-200">
+                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Product</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Customer</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Qty</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Price</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Total</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-700">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sales.map((sale) => (
+                  <tr 
+                    key={sale._id} 
+                    className="border-b border-gray-100 hover:bg-gray-50 transition"
+                  >
+                    <td className="p-4 font-medium text-gray-800">{sale.productName}</td>
+                    <td className="p-4 text-gray-600">{sale.customerName || "—"}</td>
+                    <td className="p-4 text-gray-700">{sale.quantity}</td>
+                    <td className="p-4 text-gray-700">${sale.price}</td>
+                    <td className="p-4 font-medium text-gray-800">${sale.total}</td>
+                    <td className="p-4 text-sm text-gray-500">
+                      {new Date(sale.date).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
