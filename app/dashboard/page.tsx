@@ -218,146 +218,219 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  Menu,
+  X,
+  User,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Package,
+} from "lucide-react";
 
-type Product = {
+type UserProfile = {
   _id: string;
   name: string;
-  price: number;
-  quantity: number;
+  email: string;
+  profileImage?: string;
 };
 
-type Sale = {
-  _id: string;
-  productName: string;
-  quantity: number;
-  price: number;
-  total: number;
-  date: string;
-  customerName?: string;
-};
+export default function DashboardPage() {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [name, setName] = useState("");
+  const [image, setImage] = useState<File | null>(null);
 
-export default function RecordSalePage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [sales, setSales] = useState<Sale[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [unauthorized, setUnauthorized] = useState(false);
 
-  const [selectedProduct, setSelectedProduct] = useState("");
-  const [quantity, setQuantity] = useState<number>(1);
-  const [customerName, setCustomerName] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
-    async function fetchProducts() {
-      const res = await fetch("/api/products");
-      const data = await res.json();
-      setProducts(data);
+    async function fetchUser() {
+      try {
+        const res = await fetch("/api/auth/me", { credentials: "include" });
+        if (res.status === 401) {
+          setUnauthorized(true);
+          return;
+        }
+        const data = await res.json();
+        setUser(data);
+        setName(data.name);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
-    async function fetchSales() {
-      const res = await fetch("/api/sales");
-      const data = await res.json();
-      setSales(data);
-    }
-    fetchProducts();
-    fetchSales();
+    fetchUser();
   }, []);
 
-  async function handleSale(e: React.FormEvent) {
+  async function updateProfile(e: React.FormEvent) {
     e.preventDefault();
-    await fetch("/api/sales", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId: selectedProduct, quantity, customerName }),
-    });
-    setQuantity(1);
-    setCustomerName("");
-    setSelectedProduct("");
-    const res = await fetch("/api/sales");
-    const data = await res.json();
-    setSales(data);
+    const formData = new FormData();
+    formData.append("name", name);
+    if (image) formData.append("image", image);
+
+    await fetch("/api/user/update", { method: "PUT", body: formData });
+    window.location.reload();
   }
 
-  return (
-    <div className="min-h-screen p-8 text-black">
-
-      <h1 className="text-3xl font-bold mb-6 text-black">Record Sale</h1>
-
-      {/* SALE FORM */}
-      <form onSubmit={handleSale} className="space-y-5 mb-10">
-
-        <div>
-          <label className="block mb-2 font-bold text-black">Select Product</label>
-          <select
-            value={selectedProduct}
-            onChange={(e) => setSelectedProduct(e.target.value)}
-            className="w-full p-3 border border-black text-black rounded-lg outline-none"
-            required
-          >
-            <option value="" disabled>Select a product</option>
-            {products.map((p) => (
-              <option key={p._id} value={p._id}>{p.name} - ${p.price}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block mb-2 font-bold text-black">Quantity</label>
-          <input
-            type="number"
-            value={quantity}
-            min={1}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            className="w-full p-3 border border-black text-black rounded-lg outline-none"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-bold text-black">Customer Name</label>
-          <input
-            type="text"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="w-full p-3 border border-black text-black rounded-lg outline-none"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="px-6 py-3 border border-black text-black font-bold rounded-lg hover:bg-gray-100 transition"
-        >
-          Record Sale
-        </button>
-
-      </form>
-
-      {/* RECENT SALES TABLE */}
-      <h2 className="text-2xl font-bold mb-4 text-black">Recent Sales</h2>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-black">
-          <thead>
-            <tr>
-              <th className="border border-black p-3 text-black">Product</th>
-              <th className="border border-black p-3 text-black">Quantity</th>
-              <th className="border border-black p-3 text-black">Price</th>
-              <th className="border border-black p-3 text-black">Total</th>
-              <th className="border border-black p-3 text-black">Customer</th>
-              <th className="border border-black p-3 text-black">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sales.map((sale) => (
-              <tr key={sale._id}>
-                <td className="border border-black p-3 text-black">{sale.productName}</td>
-                <td className="border border-black p-3 text-black">{sale.quantity}</td>
-                <td className="border border-black p-3 text-black">${sale.price}</td>
-                <td className="border border-black p-3 text-black">${sale.total}</td>
-                <td className="border border-black p-3 text-black">{sale.customerName || "-"}</td>
-                <td className="border border-black p-3 text-black">{new Date(sale.date).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
       </div>
+    );
 
+  if (unauthorized)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <Link href="/login" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+          Login First
+        </Link>
+      </div>
+    );
+
+  return (
+    <div className="min-h-screen flex bg-black">
+
+      {/* SIDEBAR */}
+      <aside
+        className={`hidden lg:flex flex-col bg-white shadow-lg transition-all duration-300 ${
+          sidebarOpen ? "w-64" : "w-20"
+        }`}
+      >
+        <div className="flex items-center justify-center h-16 border-b border-gray-300 relative">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded">
+              S
+            </div>
+            {sidebarOpen && <span className="font-bold text-lg text-black">ShopFlow</span>}
+          </div>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="absolute -right-3 top-5 bg-white border border-gray-300 rounded-full p-1 shadow"
+          >
+            {sidebarOpen ? <ChevronLeft size={16} className="text-black" /> : <ChevronRight size={16} className="text-black" />}
+          </button>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-2">
+          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <User size={20} className="text-black group-hover:text-white" /> {sidebarOpen && "Profile"}
+          </Link>
+          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <Package size={20} className="text-black group-hover:text-white" /> {sidebarOpen && "Products"}
+          </Link>
+          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <Package size={20} className="text-black group-hover:text-white" /> {sidebarOpen && "Sales"}
+          </Link>
+          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <Settings size={20} className="text-black group-hover:text-white" /> {sidebarOpen && "Settings"}
+          </Link>
+          <Link href="/logout" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <LogOut size={20} className="text-black group-hover:text-white" /> {sidebarOpen && "Logout"}
+          </Link>
+        </nav>
+
+        {sidebarOpen && user && (
+          <div className="p-4 border-t border-gray-300">
+            <div className="flex items-center gap-3">
+              <img src={user.profileImage || "/default-avatar.png"} className="w-10 h-10 rounded-full object-cover border border-gray-300" />
+              <div>
+                <p className="text-sm font-bold text-black">{user.name}</p>
+                <p className="text-xs text-black font-medium">{user.email}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </aside>
+
+      {/* MOBILE SIDEBAR */}
+      <aside
+        className={`fixed lg:hidden inset-y-0 left-0 bg-white w-64 shadow-lg z-50 transform transition-transform ${
+          mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-gray-300">
+          <h1 className="font-bold text-lg text-black">ShopFlow</h1>
+          <button onClick={() => setMobileSidebarOpen(false)}><X className="text-black" /></button>
+        </div>
+        <nav className="p-4 space-y-2">
+          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <User size={20} className="text-black group-hover:text-white" /> Profile
+          </Link>
+          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <Package size={20} className="text-black group-hover:text-white" /> Products
+          </Link>
+          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <Package size={20} className="text-black group-hover:text-white" /> Sales
+          </Link>
+          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <Settings size={20} className="text-black group-hover:text-white" /> Settings
+          </Link>
+          <Link href="/logout" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600 hover:text-white text-black font-medium group">
+            <LogOut size={20} className="text-black group-hover:text-white" /> Logout
+          </Link>
+        </nav>
+      </aside>
+
+      {/* MAIN CONTENT */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        <header className="lg:hidden h-16 bg-white border-b border-gray-300 flex items-center px-6">
+          <button onClick={() => setMobileSidebarOpen(true)}><Menu className="text-black" /></button>
+          <h2 className="ml-4 font-bold text-black">Dashboard</h2>
+        </header>
+
+        <main className="flex-1 p-8 overflow-y-auto">
+          <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
+
+            <h2 className="text-2xl font-black text-black mb-6">Edit Profile</h2>
+
+            <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
+              <img src={user?.profileImage || "/default-avatar.png"} className="w-24 h-24 rounded-xl object-cover border border-gray-300" />
+              <div>
+                <p className="text-lg font-bold text-black">{user?.name}</p>
+                <p className="text-black font-medium">{user?.email}</p>
+              </div>
+            </div>
+
+            <form onSubmit={updateProfile} className="space-y-6">
+
+              <div>
+                <label className="block text-sm font-bold text-black mb-2 uppercase tracking-wide">Full Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg p-3 text-black font-bold bg-gray-50 focus:bg-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-black mb-2 uppercase tracking-wide">Profile Image</label>
+                <input
+                  type="file"
+                  onChange={(e: any) => setImage(e.target.files[0])}
+                  className="w-full border border-gray-300 rounded-lg p-3 text-black font-bold bg-gray-50 focus:bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-200 file:text-black file:font-bold hover:file:bg-gray-300 cursor-pointer"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-bold transition w-full md:w-auto"
+              >
+                Update Profile
+              </button>
+
+            </form>
+
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
