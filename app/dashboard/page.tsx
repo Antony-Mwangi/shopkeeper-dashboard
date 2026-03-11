@@ -91,31 +91,31 @@ export default function DashboardPage() {
             <div className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded">
               S
             </div>
-            {sidebarOpen && <span className="font-bold text-lg text-black">ShopFlow</span>}
+            {sidebarOpen && <span className="font-bold text-lg text-[#000000]">ShopFlow</span>}
           </div>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="absolute -right-3 top-5 bg-white border rounded-full p-1 shadow"
           >
-            {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+            {sidebarOpen ? <ChevronLeft size={16} className="text-[#000000]" /> : <ChevronRight size={16} className="text-[#000000]" />}
           </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 text-black font-medium">
-          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50">
-            <User size={20} /> {sidebarOpen && "Profile"}
+        <nav className="flex-1 p-4 space-y-2">
+          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-[#000000] font-medium">
+            <User size={20} className="text-[#000000]" /> {sidebarOpen && "Profile"}
           </Link>
-          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50">
-            <Package size={20} /> {sidebarOpen && "Products"}
+          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-[#000000] font-medium">
+            <Package size={20} className="text-[#000000]" /> {sidebarOpen && "Products"}
           </Link>
-          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50">
-            <Package size={20} /> {sidebarOpen && "Sales"}
+          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-[#000000] font-medium">
+            <Package size={20} className="text-[#000000]" /> {sidebarOpen && "Sales"}
           </Link>
-          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50">
-            <Settings size={20} /> {sidebarOpen && "Settings"}
+          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-[#000000] font-medium">
+            <Settings size={20} className="text-[#000000]" /> {sidebarOpen && "Settings"}
           </Link>
-          <Link href="/logout" className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-100 text-red-700">
-            <LogOut size={20} /> {sidebarOpen && "Logout"}
+          <Link href="/logout" className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-100 text-[#000000] font-medium">
+            <LogOut size={20} className="text-[#000000]" /> {sidebarOpen && "Logout"}
           </Link>
         </nav>
 
@@ -124,8 +124,8 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
               <img src={user.profileImage || "/default-avatar.png"} className="w-10 h-10 rounded-full object-cover" />
               <div>
-                <p className="text-sm font-bold text-black">{user.name}</p>
-                <p className="text-xs text-black font-medium">{user.email}</p>
+                <p className="text-sm font-bold text-[#000000]">{user.name}</p>
+                <p className="text-xs text-[#000000] font-medium">{user.email}</p>
               </div>
             </div>
           </div>
@@ -139,21 +139,21 @@ export default function DashboardPage() {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b">
-          <h1 className="font-bold text-lg text-black">ShopFlow</h1>
-          <button onClick={() => setMobileSidebarOpen(false)}><X className="text-black" /></button>
+          <h1 className="font-bold text-lg text-[#000000]">ShopFlow</h1>
+          <button onClick={() => setMobileSidebarOpen(false)}><X className="text-[#000000]" /></button>
         </div>
-        <nav className="p-4 space-y-2 text-black font-medium">
-          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50">
-            <User size={20} /> Profile
+        <nav className="p-4 space-y-2">
+          <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-[#000000] font-medium">
+            <User size={20} className="text-[#000000]" /> Profile
           </Link>
-          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50">
-            <Package size={20} /> Products
+          <Link href="/dashboard/products" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-[#000000] font-medium">
+            <Package size={20} className="text-[#000000]" /> Products
           </Link>
-          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50">
-            <Package size={20} /> Sales
+          <Link href="/dashboard/sales" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-[#000000] font-medium">
+            <Package size={20} className="text-[#000000]" /> Sales
           </Link>
-          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50">
-            <Settings size={20} /> Settings
+          <Link href="/dashboard/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-[#000000] font-medium">
+            <Settings size={20} className="text-[#000000]" /> Settings
           </Link>
         </nav>
       </aside>
@@ -161,41 +161,41 @@ export default function DashboardPage() {
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col min-h-screen">
         <header className="lg:hidden h-16 bg-white border-b flex items-center px-6">
-          <button onClick={() => setMobileSidebarOpen(true)}><Menu className="text-black" /></button>
-          <h2 className="ml-4 font-bold text-black">Dashboard</h2>
+          <button onClick={() => setMobileSidebarOpen(true)}><Menu className="text-[#000000]" /></button>
+          <h2 className="ml-4 font-bold text-[#000000]">Dashboard</h2>
         </header>
 
         <main className="flex-1 p-8 overflow-y-auto">
           <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
 
-            <h2 className="text-2xl font-black text-black mb-6">Edit Profile</h2>
+            <h2 className="text-2xl font-black text-[#000000] mb-6">Edit Profile</h2>
 
             <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
-              <img src={user?.profileImage || "/default-avatar.png"} className="w-24 h-24 rounded-xl object-cover border" />
+              <img src={user?.profileImage || "/default-avatar.png"} className="w-24 h-24 rounded-xl object-cover border border-gray-300" />
               <div>
-                <p className="text-lg font-bold text-black">{user?.name}</p>
-                <p className="text-black font-medium opacity-80">{user?.email}</p>
+                <p className="text-lg font-bold text-[#000000]">{user?.name}</p>
+                <p className="text-[#000000] font-medium">{user?.email}</p>
               </div>
             </div>
 
             <form onSubmit={updateProfile} className="space-y-6">
 
               <div>
-                <label className="block text-sm font-bold text-black mb-2 uppercase tracking-wide">Full Name</label>
+                <label className="block text-sm font-bold text-[#000000] mb-2 uppercase tracking-wide">Full Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-gray-400 rounded-lg p-3 text-black font-bold bg-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full border border-gray-400 rounded-lg p-3 text-[#000000] font-bold bg-gray-50 focus:bg-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-black mb-2 uppercase tracking-wide">Profile Image</label>
+                <label className="block text-sm font-bold text-[#000000] mb-2 uppercase tracking-wide">Profile Image</label>
                 <input
                   type="file"
                   onChange={(e: any) => setImage(e.target.files[0])}
-                  className="w-full border border-gray-400 rounded-lg p-3 text-black font-bold bg-white cursor-pointer"
+                  className="w-full border border-gray-400 rounded-lg p-3 text-[#000000] font-bold bg-gray-50 focus:bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-200 file:text-[#000000] file:font-bold hover:file:bg-gray-300 cursor-pointer"
                 />
               </div>
 
