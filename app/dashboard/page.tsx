@@ -218,6 +218,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Package } from "lucide-react";
 
 type SaleRecord = {
   _id: string;
@@ -225,162 +227,113 @@ type SaleRecord = {
   quantity: number;
   price: number;
   total: number;
-  customerName?: string;
   date: string;
+  customerName?: string;
 };
 
 export default function SalesPage() {
-  const [productId, setProductId] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [customerName, setCustomerName] = useState("");
   const [sales, setSales] = useState<SaleRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    async function fetchSales() {
+      try {
+        const res = await fetch("/api/sales");
+        const data = await res.json();
+        setSales(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
     fetchSales();
   }, []);
 
-  async function fetchSales() {
-    try {
-      const res = await fetch("/api/sales");
-      const data = await res.json();
-      setSales(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function submitSale(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
-
-    try {
-      await fetch("/api/sales", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity, customerName }),
-      });
-
-      setProductId("");
-      setQuantity(1);
-      setCustomerName("");
-      fetchSales();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   return (
-    <div className="min-h-screen p-8 bg-gray-100 text-black">
+    <div className="min-h-screen bg-white text-black p-8">
+      
+      {/* HEADER */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Record Sale & Recent Sales</h1>
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 text-black font-semibold hover:text-blue-700"
+        >
+          <Package size={18} /> Back to Dashboard
+        </Link>
+      </div>
 
-      {/* Page Header */}
-      <h1 className="text-3xl font-bold mb-6 text-blue-700">Record a Sale</h1>
-
-      {/* Sale Form */}
-      <div className="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-200 mb-10">
-        <form onSubmit={submitSale} className="space-y-5">
-          
+      {/* RECORD SALE FORM */}
+      <div className="bg-white border border-black rounded-lg shadow p-6 mb-8">
+        <h2 className="text-xl font-bold mb-4">Record a New Sale</h2>
+        <form className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-black mb-2">
-              Product ID
-            </label>
+            <label className="block font-bold mb-1">Product Name</label>
             <input
               type="text"
-              value={productId}
-              onChange={(e) => setProductId(e.target.value)}
-              placeholder="Enter Product ID"
-              className="w-full p-3 border border-blue-700 rounded-lg bg-white text-black font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-              required
+              placeholder="Enter product name"
+              className="w-full border border-black p-3 rounded text-black bg-white focus:ring-2 focus:ring-blue-700 outline-none"
             />
           </div>
-
           <div>
-            <label className="block text-sm font-semibold text-black mb-2">
-              Quantity
-            </label>
+            <label className="block font-bold mb-1">Quantity</label>
             <input
               type="number"
-              min={1}
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="w-full p-3 border border-blue-700 rounded-lg bg-white text-black font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-              required
+              placeholder="Enter quantity"
+              className="w-full border border-black p-3 rounded text-black bg-white focus:ring-2 focus:ring-blue-700 outline-none"
             />
           </div>
-
           <div>
-            <label className="block text-sm font-semibold text-black mb-2">
-              Customer Name (Optional)
-            </label>
+            <label className="block font-bold mb-1">Customer Name</label>
             <input
               type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Customer Name"
-              className="w-full p-3 border border-blue-700 rounded-lg bg-white text-black font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="Customer (optional)"
+              className="w-full border border-black p-3 rounded text-black bg-white focus:ring-2 focus:ring-blue-700 outline-none"
             />
           </div>
-
           <button
             type="submit"
-            disabled={submitting}
-            className="w-full bg-blue-700 hover:bg-brown-500 text-black font-bold py-3 rounded-lg transition flex justify-center items-center gap-2 disabled:opacity-70"
+            className="bg-blue-700 hover:bg-brown-700 text-white font-bold px-6 py-3 rounded"
           >
-            {submitting ? "Recording..." : "Record Sale"}
+            Record Sale
           </button>
         </form>
       </div>
 
-      {/* Recent Sales Table */}
-      <h2 className="text-2xl font-bold mb-4 text-blue-700">Recent Sales</h2>
-
-      <div className="overflow-x-auto max-w-5xl mx-auto">
-        <table className="w-full bg-white border border-blue-700 rounded-lg">
-          <thead className="bg-blue-100 text-black font-semibold">
-            <tr>
-              <th className="border border-blue-700 p-3 text-left">Product</th>
-              <th className="border border-blue-700 p-3 text-left">Quantity</th>
-              <th className="border border-blue-700 p-3 text-left">Price</th>
-              <th className="border border-blue-700 p-3 text-left">Total</th>
-              <th className="border border-blue-700 p-3 text-left">Customer</th>
-              <th className="border border-blue-700 p-3 text-left">Date</th>
-            </tr>
-          </thead>
-          <tbody className="text-black">
-            {loading ? (
-              <tr>
-                <td colSpan={6} className="text-center p-3 font-medium">
-                  Loading...
-                </td>
+      {/* RECENT SALES TABLE */}
+      <div className="bg-white border border-black rounded-lg shadow p-6">
+        <h2 className="text-xl font-bold mb-4">Recent Sales</h2>
+        {loading ? (
+          <p>Loading sales...</p>
+        ) : (
+          <table className="w-full border-collapse border border-black text-black">
+            <thead>
+              <tr className="bg-blue-100 text-black font-bold">
+                <th className="border border-black p-2">Date</th>
+                <th className="border border-black p-2">Product</th>
+                <th className="border border-black p-2">Quantity</th>
+                <th className="border border-black p-2">Price</th>
+                <th className="border border-black p-2">Total</th>
+                <th className="border border-black p-2">Customer</th>
               </tr>
-            ) : sales.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center p-3 font-medium">
-                  No sales recorded
-                </td>
-              </tr>
-            ) : (
-              sales.map((sale) => (
-                <tr key={sale._id} className="hover:bg-blue-50">
-                  <td className="border border-blue-700 p-3">{sale.productName}</td>
-                  <td className="border border-blue-700 p-3">{sale.quantity}</td>
-                  <td className="border border-blue-700 p-3">{sale.price}</td>
-                  <td className="border border-blue-700 p-3">{sale.total}</td>
-                  <td className="border border-blue-700 p-3">{sale.customerName || "-"}</td>
-                  <td className="border border-blue-700 p-3">
-                    {new Date(sale.date).toLocaleString()}
-                  </td>
+            </thead>
+            <tbody>
+              {sales.map((sale) => (
+                <tr key={sale._id} className="hover:bg-gray-100">
+                  <td className="border border-black p-2">{new Date(sale.date).toLocaleDateString()}</td>
+                  <td className="border border-black p-2">{sale.productName}</td>
+                  <td className="border border-black p-2">{sale.quantity}</td>
+                  <td className="border border-black p-2">{sale.price}</td>
+                  <td className="border border-black p-2">{sale.total}</td>
+                  <td className="border border-black p-2">{sale.customerName || "-"}</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
+
     </div>
   );
 }
