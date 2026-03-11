@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Product from "@/models/product"; // just for type reference
+import Product from "@/models/Product"; // just for type reference
 import Sale from "@/models/sales"; // just for type reference
 
 type ProductType = {
