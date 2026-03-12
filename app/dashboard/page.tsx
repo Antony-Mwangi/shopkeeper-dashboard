@@ -151,7 +151,7 @@ type UserProfile = {
   _id: string;
   name: string;
   email: string;
-  profileImage?: string;
+  profileImage?: string, default: "/default-avatar.jpeg";
 };
 
 export default function DashboardPage() {
