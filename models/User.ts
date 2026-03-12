@@ -19,7 +19,7 @@ const UserSchema = new Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    profileImage: { type: String, default: "" },
+    profileImage: { type: String, default: "/default-avatar.jpeg" },
   },
   { timestamps: true }
 );
