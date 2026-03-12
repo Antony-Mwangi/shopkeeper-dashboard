@@ -294,65 +294,82 @@ export default function DashboardPage() {
       </div>
     );
 
-  return (
-    <div className="p-8">
+ return (
+  <div className="min-h-screen bg-gray-100 flex justify-center items-start px-4 py-10">
 
-      <div className="max-w-3xl bg-white rounded-xl shadow-lg p-8">
+    <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-6 md:p-10">
 
-        <h2 className="text-2xl font-black text-black mb-6">
-          Edit Profile
-        </h2>
+      <h2 className="text-2xl md:text-3xl font-bold text-black mb-8">
+        Edit Profile
+      </h2>
 
-        <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
-          <img
-            src={user?.profileImage || "/default-avatar.png"}
-            className="w-24 h-24 rounded-xl object-cover border"
-          />
+      {/* PROFILE HEADER */}
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-10">
 
-          <div>
-            <p className="text-lg font-bold text-black">{user?.name}</p>
-            <p className="text-black">{user?.email}</p>
-          </div>
+        <img
+          src={user?.profileImage || "/default-avatar.png"}
+          className="w-28 h-28 rounded-xl object-cover border border-gray-300"
+        />
+
+        <div className="text-center sm:text-left">
+          <p className="text-xl font-bold text-black">
+            {user?.name}
+          </p>
+
+          <p className="text-gray-700">
+            {user?.email}
+          </p>
         </div>
-
-        <form onSubmit={updateProfile} className="space-y-6">
-
-          <div>
-            <label className="block font-bold text-black mb-2">
-              Full Name
-            </label>
-
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-400 rounded-lg p-3 text-black focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block font-bold text-black mb-2">
-              Profile Image
-            </label>
-
-            <input
-              type="file"
-              onChange={(e: any) => setImage(e.target.files[0])}
-              className="w-full border border-gray-400 rounded-lg p-3 text-black"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-bold transition"
-          >
-            Update Profile
-          </button>
-
-        </form>
 
       </div>
 
+      {/* FORM */}
+      <form
+        onSubmit={updateProfile}
+        className="space-y-6"
+      >
+
+        {/* NAME */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-bold text-black">
+            Full Name
+          </label>
+
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg p-3 text-black focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* IMAGE */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-bold text-black">
+            Profile Image
+          </label>
+
+          <input
+            type="file"
+            onChange={(e: any) => setImage(e.target.files[0])}
+            className="w-full border border-gray-300 rounded-lg p-3 text-black file:mr-4 file:px-4 file:py-2 file:rounded-md file:border-0 file:bg-gray-200 file:text-black"
+          />
+        </div>
+
+        {/* BUTTON */}
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="w-full sm:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-semibold transition"
+          >
+            Update Profile
+          </button>
+        </div>
+
+      </form>
+
     </div>
-  );
+
+  </div>
+);
 }
