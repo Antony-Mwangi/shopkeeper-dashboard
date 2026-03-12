@@ -240,7 +240,7 @@ export default function DashboardPage() {
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 sm:mb-10 pb-6 sm:pb-8 border-b border-gray-200">
               <div className="relative group">
                 <img
-                  src={user?.profileImage || "/default-avatar.png"}
+                  src={user?.profileImage || "/default-avatar.jpeg"}
                   alt={user?.name || "Profile"}
                   className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl object-cover border-4 border-white shadow-lg"
                 />
