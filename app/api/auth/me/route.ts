@@ -30,8 +30,8 @@
 
 
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 import User from "@/models/User";
 import { connectDB } from "@/lib/db";
 
@@ -39,16 +39,13 @@ export async function GET() {
   try {
     await connectDB();
 
-    // FIX: cookies() must be awaited
-    const cookieStore = await cookies();
-
-    const token = cookieStore.get("token")?.value;
+    const token = (await cookies()).get("token")?.value;
 
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as jwt.JwtPayload;
 
     const user = await User.findById(decoded.id).select("-password");
 
@@ -58,12 +55,7 @@ export async function GET() {
 
     return NextResponse.json(user);
 
-  } catch (err) {
-    console.error("Error in /api/auth/me:", err);
-
-    return NextResponse.json(
-      { message: "Invalid token" },
-      { status: 401 }
-    );
+  } catch (error) {
+    return NextResponse.json({ message: "Invalid token" }, { status: 401 });
   }
 }
