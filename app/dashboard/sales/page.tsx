@@ -210,7 +210,7 @@ export default function SalesPage() {
                       <td className="p-4">{s.customerName || "—"}</td>
                       <td className="p-4 text-center">{s.quantity}</td>
                       <td className="p-4 text-right font-bold">
-                        ${s.total.toFixed(2)}
+                        Ksh{s.total.toFixed(2)}
                       </td>
                       <td className="p-4 text-right text-sm">
                         {new Date(s.date).toLocaleDateString()}

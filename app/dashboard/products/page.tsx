@@ -380,7 +380,7 @@ export default function ProductsPage() {
                       <td className="p-4 font-medium">{p.name}</td>
                       <td className="p-4">{p.category || "General"}</td>
                       <td className="p-4 text-right font-bold">
-                        ${Number(p.price).toFixed(2)}
+                        Ksh{Number(p.price).toFixed(2)}
                       </td>
                       <td className="p-4 text-right">{p.quantity}</td>
 
