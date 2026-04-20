@@ -4,6 +4,7 @@
 
 // import { useEffect, useState } from "react";
 // import Link from "next/link";
+// import { useRouter } from "next/navigation";
 // import {
 //   User,
 //   Package,
@@ -24,13 +25,19 @@
 // }: {
 //   children: React.ReactNode;
 // }) {
+//   const router = useRouter();
+
 //   const [sidebarOpen, setSidebarOpen] = useState(true);
 //   const [user, setUser] = useState<UserProfile | null>(null);
 
+//   // FETCH USER
 //   useEffect(() => {
 //     async function fetchUser() {
 //       try {
-//         const res = await fetch("/api/auth/me", { credentials: "include" });
+//         const res = await fetch("/api/auth/me", {
+//           credentials: "include",
+//         });
+
 //         if (res.ok) {
 //           const data = await res.json();
 //           setUser(data);
@@ -43,8 +50,22 @@
 //     fetchUser();
 //   }, []);
 
+//   // LOGOUT FUNCTION
+//   const handleLogout = async () => {
+//     try {
+//       await fetch("/api/auth/logout", {
+//         method: "POST",
+//       });
+
+//       router.push("/");     // ✅ redirect to landing page
+//       router.refresh();     // ✅ clear UI state
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
 //   return (
-//     <div className="min-h-screen flex bg-gray-100">
+//     <div className="min-h-screen flex">
 
 //       {/* SIDEBAR */}
 //       <aside
@@ -68,18 +89,13 @@
 //             )}
 //           </div>
 
-//           {/* COLLAPSE BUTTON */}
+//           {/* TOGGLE BUTTON */}
 //           <button
 //             onClick={() => setSidebarOpen(!sidebarOpen)}
 //             className="absolute -right-3 top-5 bg-white border rounded-full p-1 shadow"
 //           >
-//             {sidebarOpen ? (
-//               <ChevronLeft size={16} />
-//             ) : (
-//               <ChevronRight size={16} />
-//             )}
+//             {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
 //           </button>
-
 //         </div>
 
 //         {/* NAVIGATION */}
@@ -117,13 +133,14 @@
 //             {sidebarOpen && "Settings"}
 //           </Link>
 
-//           <Link
-//             href="/logout"
-//             className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-100 text-black font-medium"
+//           {/* LOGOUT BUTTON */}
+//           <button
+//             onClick={handleLogout}
+//             className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-100 text-black font-medium w-full text-left"
 //           >
 //             <LogOut size={20} />
 //             {sidebarOpen && "Logout"}
-//           </Link>
+//           </button>
 
 //         </nav>
 
@@ -135,7 +152,7 @@
 
 //               <img
 //                 src={user.profileImage || "/default-avatar.png"}
-//                 className="w-10 h-10 rounded-full object-cover"
+//                 className="w-10 h-10 rounded-full object-cover border"
 //               />
 
 //               {sidebarOpen && (
@@ -158,7 +175,7 @@
 //       </aside>
 
 //       {/* MAIN CONTENT */}
-//       <main className="flex-1 p-8 overflow-y-auto">
+//       <main className="flex-1 p-8 overflow-y-auto bg-gray-100">
 //         {children}
 //       </main>
 
@@ -178,6 +195,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  BarChart3, // ✅ NEW ICON
 } from "lucide-react";
 
 type UserProfile = {
@@ -196,7 +214,7 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState<UserProfile | null>(null);
 
-  // FETCH USER
+  /* ================= FETCH USER ================= */
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -216,15 +234,15 @@ export default function DashboardLayout({
     fetchUser();
   }, []);
 
-  // LOGOUT FUNCTION
+  /* ================= LOGOUT ================= */
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", {
         method: "POST",
       });
 
-      router.push("/");     // ✅ redirect to landing page
-      router.refresh();     // ✅ clear UI state
+      router.push("/");
+      router.refresh();
     } catch (err) {
       console.error(err);
     }
@@ -242,7 +260,6 @@ export default function DashboardLayout({
 
         {/* LOGO */}
         <div className="flex items-center justify-center h-16 border-b relative">
-
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded">
               S
@@ -255,7 +272,6 @@ export default function DashboardLayout({
             )}
           </div>
 
-          {/* TOGGLE BUTTON */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="absolute -right-3 top-5 bg-white border rounded-full p-1 shadow"
@@ -291,6 +307,15 @@ export default function DashboardLayout({
             {sidebarOpen && "Sales"}
           </Link>
 
+          {/* ✅ NEW ANALYTICS LINK */}
+          <Link
+            href="/dashboard/analytics"
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-black font-medium"
+          >
+            <BarChart3 size={20} />
+            {sidebarOpen && "Analytics"}
+          </Link>
+
           <Link
             href="/dashboard/settings"
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-black font-medium"
@@ -299,7 +324,7 @@ export default function DashboardLayout({
             {sidebarOpen && "Settings"}
           </Link>
 
-          {/* LOGOUT BUTTON */}
+          {/* LOGOUT */}
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-100 text-black font-medium w-full text-left"
@@ -313,9 +338,7 @@ export default function DashboardLayout({
         {/* USER INFO */}
         {user && (
           <div className="p-4 border-t">
-
             <div className="flex items-center gap-3">
-
               <img
                 src={user.profileImage || "/default-avatar.png"}
                 className="w-10 h-10 rounded-full object-cover border"
@@ -326,21 +349,18 @@ export default function DashboardLayout({
                   <p className="text-sm font-bold text-black">
                     {user.name}
                   </p>
-
                   <p className="text-xs text-gray-600">
                     {user.email}
                   </p>
                 </div>
               )}
-
             </div>
-
           </div>
         )}
 
       </aside>
 
-      {/* MAIN CONTENT */}
+      {/* MAIN */}
       <main className="flex-1 p-8 overflow-y-auto bg-gray-100">
         {children}
       </main>
