@@ -1,11 +1,13 @@
-// import { NextResponse } from "next/server";
+
+
+// import { NextRequest, NextResponse } from "next/server";
 // import { connectDB } from "@/lib/db";
 // import Sale from "@/models/sales";
 // import Product from "@/models/Product";
 // import { cookies } from "next/headers";
 // import jwt from "jsonwebtoken";
 
-// export async function GET() {
+// export async function GET(req: NextRequest) {
 //   await connectDB();
 
 //   try {
@@ -17,38 +19,69 @@
 
 //     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-//     /* ================= BASIC STATS ================= */
-//     const sales = await Sale.find({ userId: decoded.id });
-//     const products = await Product.find({ userId: decoded.id });
+//     /* ================= FILTER ================= */
+//     const range = req.nextUrl.searchParams.get("range") || "month";
 
-//     const totalRevenue = sales.reduce((acc, s) => acc + s.total, 0);
-//     const totalSales = sales.length;
-//     const totalProducts = products.length;
-//     const lowStock = products.filter(p => p.quantity < 5).length;
+//     const now = new Date();
+//     let startDate = new Date();
 
-//     /* ================= REVENUE BY DATE ================= */
-//     const revenueByDate: Record<string, number> = {};
+//     if (range === "today") {
+//       startDate.setHours(0, 0, 0, 0);
+//     } else if (range === "week") {
+//       startDate.setDate(now.getDate() - 7);
+//     } else {
+//       startDate.setMonth(now.getMonth() - 1);
+//     }
 
-//     sales.forEach((s) => {
-//       const date = new Date(s.date).toLocaleDateString();
-
-//       if (!revenueByDate[date]) revenueByDate[date] = 0;
-//       revenueByDate[date] += s.total;
+//     /* ================= FETCH ================= */
+//     const sales = await Sale.find({
+//       userId: decoded.id,
+//       date: { $gte: startDate },
 //     });
 
-//     /* ================= SALES PER PRODUCT ================= */
-//     const productStats: Record<string, number> = {};
+//     const prevSales = await Sale.find({
+//       userId: decoded.id,
+//       date: { $lt: startDate },
+//     });
 
+//     const products = await Product.find({ userId: decoded.id });
+
+//     /* ================= STATS ================= */
+//     const totalRevenue = sales.reduce((acc, s) => acc + s.total, 0);
+//     const totalSales = sales.length;
+
+//     /* PROFIT (simple assumption: 30% margin if no costPrice) */
+//     const totalProfit = sales.reduce((acc, s) => acc + s.total * 0.3, 0);
+
+    
+//     const prevRevenue = prevSales.reduce((acc, s) => acc + s.total, 0);
+
+//     const revenueTrend =
+//       prevRevenue === 0
+//         ? 100
+//         : ((totalRevenue - prevRevenue) / prevRevenue) * 100;
+
+
+//     const lowStockItems = products.filter(p => p.quantity < 5);
+
+//     const revenueByDate: Record<string, number> = {};
 //     sales.forEach((s) => {
-//       if (!productStats[s.productName]) productStats[s.productName] = 0;
-//       productStats[s.productName] += s.quantity;
+//       const d = new Date(s.date).toLocaleDateString();
+//       revenueByDate[d] = (revenueByDate[d] || 0) + s.total;
+//     });
+
+//     const productStats: Record<string, number> = {};
+//     sales.forEach((s) => {
+//       productStats[s.productName] =
+//         (productStats[s.productName] || 0) + s.quantity;
 //     });
 
 //     return NextResponse.json({
 //       totalRevenue,
 //       totalSales,
-//       totalProducts,
-//       lowStock,
+//       totalProfit,
+//       revenueTrend,
+//       lowStockItems,
 //       revenueByDate,
 //       productStats,
 //     });
@@ -57,6 +90,7 @@
 //     return NextResponse.json({ message: err.message }, { status: 500 });
 //   }
 // }
+
 
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
@@ -77,11 +111,11 @@ export async function GET(req: NextRequest) {
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-    /* ================= FILTER ================= */
+    /* ================= DATE FILTER ================= */
     const range = req.nextUrl.searchParams.get("range") || "month";
 
     const now = new Date();
-    let startDate = new Date();
+    const startDate = new Date();
 
     if (range === "today") {
       startDate.setHours(0, 0, 0, 0);
@@ -91,7 +125,7 @@ export async function GET(req: NextRequest) {
       startDate.setMonth(now.getMonth() - 1);
     }
 
-    /* ================= FETCH ================= */
+    /* ================= DATA ================= */
     const sales = await Sale.find({
       userId: decoded.id,
       date: { $gte: startDate },
@@ -104,37 +138,70 @@ export async function GET(req: NextRequest) {
 
     const products = await Product.find({ userId: decoded.id });
 
-    /* ================= STATS ================= */
-    const totalRevenue = sales.reduce((acc, s) => acc + s.total, 0);
+    /* ================= CORE STATS ================= */
+    const totalRevenue = sales.reduce((a, s) => a + s.total, 0);
     const totalSales = sales.length;
 
-    /* PROFIT (simple assumption: 30% margin if no costPrice) */
-    const totalProfit = sales.reduce((acc, s) => acc + s.total * 0.3, 0);
+    const totalProfit = sales.reduce((a, s) => a + s.total * 0.3, 0);
 
-    /* ================= TRENDS ================= */
-    const prevRevenue = prevSales.reduce((acc, s) => acc + s.total, 0);
+    const prevRevenue = prevSales.reduce((a, s) => a + s.total, 0);
 
     const revenueTrend =
       prevRevenue === 0
         ? 100
         : ((totalRevenue - prevRevenue) / prevRevenue) * 100;
 
-    /* ================= LOW STOCK ================= */
-    const lowStockItems = products.filter(p => p.quantity < 5);
+    const lowStockItems = products.filter((p) => p.quantity < 5);
 
-    /* ================= CHARTS ================= */
+    /* ================= CHART DATA ================= */
     const revenueByDate: Record<string, number> = {};
+
     sales.forEach((s) => {
-      const d = new Date(s.date).toLocaleDateString();
-      revenueByDate[d] = (revenueByDate[d] || 0) + s.total;
+      const date = new Date(s.date).toLocaleDateString();
+      revenueByDate[date] = (revenueByDate[date] || 0) + s.total;
     });
 
     const productStats: Record<string, number> = {};
+
     sales.forEach((s) => {
       productStats[s.productName] =
         (productStats[s.productName] || 0) + s.quantity;
     });
 
+    /* ================= AI INSIGHT ENGINE ================= */
+
+    const productTotals: Record<string, number> = {};
+
+    sales.forEach((s) => {
+      productTotals[s.productName] =
+        (productTotals[s.productName] || 0) + s.total;
+    });
+
+    const topProduct = Object.entries(productTotals).sort(
+      (a, b) => b[1] - a[1]
+    )[0];
+
+    let insight = "Sales are stable with normal activity.";
+
+    if (revenueTrend > 20) {
+      insight = `Sales increased significantly due to high demand for ${
+        topProduct?.[0] || "key products"
+      }.`;
+    }
+
+    if (revenueTrend < -20) {
+      insight = `Sales dropped due to reduced demand or stock issues.`;
+    }
+
+    if (topProduct) {
+      insight += ` Top product: ${topProduct[0]}.`;
+    }
+
+    if (lowStockItems.length > 3) {
+      insight += " Warning: multiple items are low in stock.";
+    }
+
+    /* ================= RESPONSE ================= */
     return NextResponse.json({
       totalRevenue,
       totalSales,
@@ -143,9 +210,12 @@ export async function GET(req: NextRequest) {
       lowStockItems,
       revenueByDate,
       productStats,
+      insight,
     });
-
   } catch (err: any) {
-    return NextResponse.json({ message: err.message }, { status: 500 });
+    return NextResponse.json(
+      { message: err.message },
+      { status: 500 }
+    );
   }
 }
