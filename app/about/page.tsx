@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 
 /* ================= TYPES ================= */
 
@@ -257,4 +258,5 @@ function AnimatedBlock({ children }: { children: React.ReactNode }) {
       {children}
     </div>
   );
+  <Footer/>
 }
