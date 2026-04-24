@@ -140,7 +140,7 @@ export default function AboutPage() {
       </Section>
 
       {/* CTA */}
-      <Section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-center rounded-t-3xl">
+      {/* <Section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-center rounded-t-3xl">
         <h2 className="text-2xl md:text-3xl font-bold">
           Ready to grow your business?
         </h2>
@@ -155,7 +155,7 @@ export default function AboutPage() {
         >
           Get Started Now
         </Link>
-      </Section>
+      </Section> */}
 
       {/* FOOTER */}
       <Footer />
