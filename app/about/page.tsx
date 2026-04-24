@@ -6,6 +6,11 @@ import Footer from "@/components/Footer";
 
 /* ================= TYPES ================= */
 
+type SectionProps = {
+  children: React.ReactNode;
+  className?: string;
+};
+
 type StatProps = {
   target: number;
   label: string;
@@ -16,20 +21,18 @@ type ValueCardProps = {
   desc: string;
 };
 
-type SectionProps = {
-  children: React.ReactNode;
-  className?: string;
-};
-
 /* ================= PAGE ================= */
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-slate-50 text-black">
+    <main className="min-h-screen flex flex-col bg-slate-50 text-black">
 
       {/* TOP NAV */}
-      <div className="max-w-7xl mx-auto px-6 md:px-10 py-6 flex justify-between items-center">
-        <Link href="/" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
+      <div className="max-w-7xl mx-auto w-full px-6 md:px-10 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <Link
+          href="/"
+          className="text-sm font-medium text-slate-600 hover:text-blue-600 transition"
+        >
           ← Back to Home
         </Link>
 
@@ -42,15 +45,16 @@ export default function AboutPage() {
       </div>
 
       {/* HERO */}
-      <Section className="pt-10">
+      <Section className="pt-6">
         <div className="max-w-2xl">
-          <h1 className="text-3xl md:text-5xl font-bold leading-tight tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight">
             Powering Smarter Business Decisions
           </h1>
 
           <p className="mt-5 text-slate-600 text-sm md:text-base leading-relaxed">
-            We help businesses manage inventory, track sales, and unlock powerful insights
-            through intelligent analytics — all within a seamless platform designed for growth.
+            ShopFlow helps modern businesses manage inventory, track sales,
+            and unlock real-time insights through intelligent analytics —
+            all within a fast, scalable platform built for growth.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-4">
@@ -90,10 +94,11 @@ export default function AboutPage() {
             </h2>
 
             <p className="mt-4 text-slate-600 text-sm md:text-base leading-relaxed">
-              ShopFlow was built after identifying a common challenge across growing businesses:
-              disconnected tools, unclear insights, and inefficient workflows. By combining
-              inventory management, sales tracking, and analytics into one platform, we enable
-              smarter, faster, and more confident decisions every day.
+              ShopFlow was born from a simple observation: growing businesses
+              were overwhelmed by disconnected tools and unclear data.
+              We built a unified system that combines inventory, sales,
+              and analytics into one seamless experience — enabling smarter,
+              faster, and more confident decisions every day.
             </p>
           </div>
         </AnimatedBlock>
@@ -106,7 +111,7 @@ export default function AboutPage() {
             Our Core Values
           </h2>
           <p className="text-slate-600 text-sm mt-3">
-            Everything we build is driven by simplicity, performance, and trust.
+            Everything we build is guided by clarity, performance, and trust.
           </p>
         </div>
 
@@ -121,14 +126,14 @@ export default function AboutPage() {
           <AnimatedBlock>
             <ValueCard
               title="Performance"
-              desc="Fast, reliable tools that scale seamlessly with your business growth."
+              desc="Fast, reliable tools built to scale with your business growth."
             />
           </AnimatedBlock>
 
           <AnimatedBlock>
             <ValueCard
               title="Trust"
-              desc="Your data is secure, and your insights remain accurate and dependable."
+              desc="Secure systems and accurate insights you can depend on."
             />
           </AnimatedBlock>
         </div>
@@ -152,7 +157,10 @@ export default function AboutPage() {
         </Link>
       </Section>
 
-    </div>
+      {/* FOOTER */}
+      <Footer />
+
+    </main>
   );
 }
 
@@ -160,13 +168,13 @@ export default function AboutPage() {
 
 function Section({ children, className = "" }: SectionProps) {
   return (
-    <section className={`max-w-7xl mx-auto px-6 md:px-10 py-20 ${className}`}>
+    <section className={`max-w-7xl mx-auto w-full px-6 md:px-10 py-20 ${className}`}>
       {children}
     </section>
   );
 }
 
-/* ================= STAT ================= */
+/* ================= STAT (ANIMATED COUNTER) ================= */
 
 function Stat({ target, label }: StatProps) {
   const [count, setCount] = useState<number>(0);
@@ -185,6 +193,7 @@ function Stat({ target, label }: StatProps) {
 
       const timer = setInterval(() => {
         start += step;
+
         if (start >= target) {
           setCount(target);
           clearInterval(timer);
@@ -227,7 +236,7 @@ function ValueCard({ title, desc }: ValueCardProps) {
   );
 }
 
-/* ================= ANIMATION ================= */
+/* ================= SCROLL ANIMATION ================= */
 
 function AnimatedBlock({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -251,12 +260,11 @@ function AnimatedBlock({ children }: { children: React.ReactNode }) {
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ${
+      className={`transition-all duration-700 ease-out ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       }`}
     >
       {children}
     </div>
   );
-  <Footer/>
 }
