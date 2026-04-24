@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 /* ================= TYPES ================= */
 
@@ -25,8 +26,22 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-black">
 
+      {/* TOP NAV */}
+      <div className="max-w-7xl mx-auto px-6 md:px-10 py-6 flex justify-between items-center">
+        <Link href="/" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition">
+          ← Back to Home
+        </Link>
+
+        <Link
+          href="/dashboard"
+          className="text-sm font-semibold bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          Go to Dashboard
+        </Link>
+      </div>
+
       {/* HERO */}
-      <Section>
+      <Section className="pt-10">
         <div className="max-w-2xl">
           <h1 className="text-3xl md:text-5xl font-bold leading-tight tracking-tight">
             Powering Smarter Business Decisions
@@ -38,13 +53,19 @@ export default function AboutPage() {
           </p>
 
           <div className="mt-6 flex flex-wrap gap-4">
-            <button className="bg-black text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-slate-800 transition">
+            <Link
+              href="/dashboard"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+            >
               Get Started
-            </button>
+            </Link>
 
-            <button className="border px-6 py-3 rounded-lg text-sm font-medium hover:bg-slate-100 transition">
+            <Link
+              href="/"
+              className="border border-blue-200 text-blue-600 px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-50 transition"
+            >
               Learn More
-            </button>
+            </Link>
           </div>
         </div>
       </Section>
@@ -59,7 +80,7 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      {/* AI STORY */}
+      {/* STORY */}
       <Section>
         <AnimatedBlock>
           <div className="max-w-3xl mx-auto text-center">
@@ -113,25 +134,28 @@ export default function AboutPage() {
       </Section>
 
       {/* CTA */}
-      <Section className="bg-black text-white text-center">
+      <Section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-center rounded-t-3xl">
         <h2 className="text-2xl md:text-3xl font-bold">
           Ready to grow your business?
         </h2>
 
-        <p className="text-slate-300 mt-3 text-sm">
+        <p className="text-blue-100 mt-3 text-sm">
           Start managing your sales, inventory, and analytics today.
         </p>
 
-        <button className="mt-6 bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-slate-200 transition">
+        <Link
+          href="/dashboard"
+          className="inline-block mt-6 bg-white text-blue-700 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition"
+        >
           Get Started Now
-        </button>
+        </Link>
       </Section>
 
     </div>
   );
 }
 
-/* ================= REUSABLE SECTION ================= */
+/* ================= SECTION ================= */
 
 function Section({ children, className = "" }: SectionProps) {
   return (
@@ -141,7 +165,7 @@ function Section({ children, className = "" }: SectionProps) {
   );
 }
 
-/* ================= STAT WITH COUNTER ================= */
+/* ================= STAT ================= */
 
 function Stat({ target, label }: StatProps) {
   const [count, setCount] = useState<number>(0);
@@ -151,38 +175,33 @@ function Stat({ target, label }: StatProps) {
     const el = ref.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
 
-        let start = 0;
-        const duration = 1200;
-        const stepTime = 16;
-        const increment = target / (duration / stepTime);
+      let start = 0;
+      const duration = 1200;
+      const step = target / (duration / 16);
 
-        const timer = setInterval(() => {
-          start += increment;
-          if (start >= target) {
-            setCount(target);
-            clearInterval(timer);
-          } else {
-            setCount(Math.floor(start));
-          }
-        }, stepTime);
+      const timer = setInterval(() => {
+        start += step;
+        if (start >= target) {
+          setCount(target);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(start));
+        }
+      }, 16);
 
-        observer.disconnect();
-      },
-      { threshold: 0.5 }
-    );
+      observer.disconnect();
+    });
 
     observer.observe(el);
-
     return () => observer.disconnect();
   }, [target]);
 
   return (
     <div ref={ref} className="space-y-2">
-      <h3 className="text-2xl md:text-3xl font-bold">
+      <h3 className="text-2xl md:text-3xl font-bold text-blue-600">
         {count.toLocaleString()}+
       </h3>
       <p className="text-xs text-slate-500 uppercase tracking-wide">
@@ -196,8 +215,8 @@ function Stat({ target, label }: StatProps) {
 
 function ValueCard({ title, desc }: ValueCardProps) {
   return (
-    <div className="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-      <h3 className="font-semibold text-lg">
+    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-blue-200">
+      <h3 className="font-semibold text-lg text-blue-600">
         {title}
       </h3>
       <p className="text-sm text-slate-600 mt-3 leading-relaxed">
@@ -207,7 +226,7 @@ function ValueCard({ title, desc }: ValueCardProps) {
   );
 }
 
-/* ================= SCROLL ANIMATION ================= */
+/* ================= ANIMATION ================= */
 
 function AnimatedBlock({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -217,28 +236,22 @@ function AnimatedBlock({ children }: { children: React.ReactNode }) {
     const el = ref.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setVisible(true);
+        observer.disconnect();
+      }
+    });
 
     observer.observe(el);
-
     return () => observer.disconnect();
   }, []);
 
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ease-out ${
-        visible
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-10"
+      className={`transition-all duration-700 ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       }`}
     >
       {children}
