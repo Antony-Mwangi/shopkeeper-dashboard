@@ -31,7 +31,7 @@ export default function SalesPage() {
   const [editQty, setEditQty] = useState(1);
   const [editCustomer, setEditCustomer] = useState("");
 
-  /* THEME */
+  //theme
   const bgMain = "bg-slate-100";
   const bgCard = "bg-slate-200";
   const border = "border-slate-300";
@@ -53,7 +53,7 @@ export default function SalesPage() {
     fetchSales();
   }, []);
 
-  /* CREATE */
+  //CREATE
   const handleSale = async (e: any) => {
     e.preventDefault();
 
@@ -77,19 +77,19 @@ export default function SalesPage() {
     fetchSales();
   };
 
-  /* DELETE */
-  const handleDelete = async (id: string) => {
-    await fetch("/api/sales", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ saleId: id }),
-    });
+  //DELETE
+  // const handleDelete = async (id: string) => {
+  //   await fetch("/api/sales", {
+  //     method: "DELETE",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ saleId: id }),
+  //   });
 
-    fetchSales();
-    fetchProducts();
-  };
+  //   fetchSales();
+  //   fetchProducts();
+  // };
 
-  /* EDIT */
+  //EDIT
   const openEdit = (sale: Sale) => {
     setEditingSale(sale);
     setEditQty(sale.quantity);
@@ -225,12 +225,12 @@ export default function SalesPage() {
                           Edit
                         </button>
 
-                        <button
+                        {/* <button
                           onClick={() => handleDelete(s._id)}
                           className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
                         >
                           Delete
-                        </button>
+                        </button> */}
 
                       </td>
 

@@ -123,40 +123,9 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// /* =========================
-//    DELETE SALE
-// ========================= */
-// export async function DELETE(req: NextRequest) {
-//   await connectDB();
-
-//   try {
-//     const userId = await getUserId();
-//     const { saleId } = await req.json();
-
-//     const sale = await Sale.findOne({ _id: saleId, userId });
-
-//     if (!sale) {
-//       return NextResponse.json({ message: "Sale not found" }, { status: 404 });
-//     }
-
-//     const product = await Product.findById(sale.productId);
-
-//     if (product) {
-//       product.quantity += sale.quantity;
-//       await product.save();
-//     }
-
-//     await Sale.deleteOne({ _id: saleId });
-
-//     return NextResponse.json({ message: "Deleted" });
-
-//   } catch (err: any) {
-//     return NextResponse.json({ message: err.message }, { status: 500 });
-//   }
-// }
-
-   //DELETE SALE (FIXED)
-   
+/* =========================
+   DELETE SALE
+========================= */
 export async function DELETE(req: NextRequest) {
   await connectDB();
 
@@ -170,11 +139,16 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ message: "Sale not found" }, { status: 404 });
     }
 
+    const product = await Product.findById(sale.productId);
 
+    if (product) {
+      product.quantity += sale.quantity;
+      await product.save();
+    }
 
     await Sale.deleteOne({ _id: saleId });
 
-    return NextResponse.json({ message: "Deleted successfully" });
+    return NextResponse.json({ message: "Deleted" });
 
   } catch (err: any) {
     return NextResponse.json({ message: err.message }, { status: 500 });
