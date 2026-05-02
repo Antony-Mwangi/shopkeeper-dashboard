@@ -256,7 +256,7 @@ export default function AnalyticsPage() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 
         <Stat title="Revenue" value={`Ksh ${data.totalRevenue}`} />
-        <Stat title="Profit" value={`Ksh ${data.totalProfit}`} />
+        {/* <Stat title="Profit" value={`Ksh ${data.totalProfit}`} /> */}
         <Stat title="Sales" value={data.totalSales} />
         <Stat
           title="Trend"
