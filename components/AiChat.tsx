@@ -13,28 +13,31 @@ type ApiMessage = {
 };
 
 export default function AiChat() {
-  const [open, setOpen] = useState<boolean>(false);
-  const [input, setInput] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "ai", text: "Hi 👋 I’m your ShopFlow AI assistant." },
+    {
+      role: "ai",
+      text: "Hi 👋 I’m your ShopFlow AI assistant. Ask me about sales, stock, or products.",
+    },
   ]);
 
-  const sendMessage = async (): Promise<void> => {
+  const sendMessage = async () => {
     if (!input.trim() || loading) return;
 
     const userText = input;
 
-    // snapshot messages BEFORE update (fix stale state bug)
+    // snapshot (IMPORTANT: avoids stale state bugs)
     const currentMessages = [...messages];
 
-    const newMessages: Msg[] = [
+    const updatedMessages: Msg[] = [
       ...currentMessages,
       { role: "user", text: userText },
     ];
 
-    setMessages(newMessages);
+    setMessages(updatedMessages);
     setInput("");
     setLoading(true);
 
@@ -44,12 +47,15 @@ export default function AiChat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userText,
-          history: currentMessages.map((m): ApiMessage => ({
-            role: m.role === "user" ? "user" : "assistant",
-            content: m.text,
-          })),
+          history: currentMessages.map(
+            (m): ApiMessage => ({
+              role: m.role === "user" ? "user" : "assistant",
+              content: m.text,
+            })
+          ),
           context: {
             source: "dashboard",
+            page: "ai-chat",
           },
         }),
       });
@@ -57,12 +63,15 @@ export default function AiChat() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Request failed");
+        throw new Error(data?.error || "AI request failed");
       }
 
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: data.reply },
+        {
+          role: "ai",
+          text: data.reply || "No response from AI",
+        },
       ]);
     } catch (err: unknown) {
       const message =
@@ -70,7 +79,10 @@ export default function AiChat() {
 
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: `⚠️ ${message}` },
+        {
+          role: "ai",
+          text: `⚠️ ${message}`,
+        },
       ]);
     } finally {
       setLoading(false);
@@ -125,7 +137,7 @@ export default function AiChat() {
               className="flex-1 border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about sales, stock..."
+              placeholder="Ask about sales, stock, products..."
               onKeyDown={(e) => {
                 if (e.key === "Enter") sendMessage();
               }}
