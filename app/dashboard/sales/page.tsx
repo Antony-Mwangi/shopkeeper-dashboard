@@ -146,7 +146,7 @@ export default function SalesPage() {
               <option value="">Select product</option>
               {products.map((p) => (
                 <option key={p._id} value={p._id}>
-                  {p.name} — KES{p.price} ({p.quantity} left)
+                  {p.name} — Ksh{p.price} ({p.quantity} left)
                 </option>
               ))}
             </select>
