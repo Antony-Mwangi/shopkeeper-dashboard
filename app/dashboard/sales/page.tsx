@@ -35,7 +35,7 @@ export default function SalesPage() {
   const bgMain = "bg-slate-100";
   const bgCard = "bg-slate-200";
   const border = "border-slate-300";
-  const textMain = "text-black";        // ✅ FORCE BLACK
+  const textMain = "text-black";        
   const inputBg = "bg-slate-50";
 
   const fetchProducts = async () => {
@@ -146,7 +146,7 @@ export default function SalesPage() {
               <option value="">Select product</option>
               {products.map((p) => (
                 <option key={p._id} value={p._id}>
-                  {p.name} — ${p.price} ({p.quantity} left)
+                  {p.name} — KES{p.price} ({p.quantity} left)
                 </option>
               ))}
             </select>
