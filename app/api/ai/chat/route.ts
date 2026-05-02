@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   try {
     const { message, history, context } = await req.json();
 
-    // ---- AUTH (user-based memory) ----
+    // ---- AUTH ----
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
@@ -27,14 +27,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const user: any = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    );
-
+    const user: any = jwt.verify(token, process.env.JWT_SECRET!);
     const userId = user.id;
 
-    // ---- SYSTEM PROMPT (BUSINESS AI) ----
+    // ---- SYSTEM PROMPT ----
     const systemPrompt = `
 You are ShopFlow AI Assistant.
 
@@ -44,28 +40,44 @@ You help users with:
 - profit insights
 - business decisions
 
-You have context:
+Context:
 ${JSON.stringify(context || {})}
 
 Rules:
-- Be concise and clear
-- Use business insights when possible
-- If asked about stock/sales, rely on provided context
-- If data is missing, ask smart follow-up questions
-- Act like a professional SaaS business analyst
+- Be concise
+- Use business data when available
+- If data is missing, ask questions
+- Always act like a SaaS analytics assistant
 `;
+
+    // ---- SAFE HISTORY ----
+    const safeHistory: Message[] = Array.isArray(history)
+      ? history.filter(
+          (m) =>
+            m &&
+            (m.role === "user" || m.role === "assistant") &&
+            typeof m.content === "string"
+        )
+      : [];
 
     // ---- OPENAI CALL ----
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
-        ...(history as Message[]),
+        ...safeHistory,
         { role: "user", content: message },
       ],
     });
 
-    const reply = completion.choices[0].message.content;
+    const reply = completion?.choices?.[0]?.message?.content;
+
+    if (!reply) {
+      return NextResponse.json(
+        { error: "AI returned empty response" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       reply,
