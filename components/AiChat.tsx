@@ -7,25 +7,34 @@ type Msg = {
   text: string;
 };
 
+type ApiMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
 export default function AiChat() {
-  const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [input, setInput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [messages, setMessages] = useState<Msg[]>([
     { role: "ai", text: "Hi 👋 I’m your ShopFlow AI assistant." },
   ]);
 
-  const sendMessage = async () => {
+  const sendMessage = async (): Promise<void> => {
     if (!input.trim() || loading) return;
 
-    const userMsg = input;
+    const userText = input;
 
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", text: userMsg },
-    ]);
+    // snapshot messages BEFORE update (fix stale state bug)
+    const currentMessages = [...messages];
 
+    const newMessages: Msg[] = [
+      ...currentMessages,
+      { role: "user", text: userText },
+    ];
+
+    setMessages(newMessages);
     setInput("");
     setLoading(true);
 
@@ -34,8 +43,8 @@ export default function AiChat() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: userMsg,
-          history: messages.map((m) => ({
+          message: userText,
+          history: currentMessages.map((m): ApiMessage => ({
             role: m.role === "user" ? "user" : "assistant",
             content: m.text,
           })),
@@ -48,20 +57,20 @@ export default function AiChat() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "AI request failed");
+        throw new Error(data?.error || "Request failed");
       }
 
       setMessages((prev) => [
         ...prev,
         { role: "ai", text: data.reply },
       ]);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
       setMessages((prev) => [
         ...prev,
-        {
-          role: "ai",
-          text: err.message || "Something went wrong",
-        },
+        { role: "ai", text: `⚠️ ${message}` },
       ]);
     } finally {
       setLoading(false);
@@ -72,7 +81,7 @@ export default function AiChat() {
     <>
       {/* FLOAT BUTTON */}
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen((v) => !v)}
         className="fixed bottom-6 right-6 bg-blue-600 text-white px-4 py-3 rounded-full shadow-lg z-50 hover:bg-blue-700 transition"
       >
         🤖 AI
@@ -80,7 +89,7 @@ export default function AiChat() {
 
       {/* CHAT WINDOW */}
       {open && (
-        <div className="fixed bottom-20 right-6 w-[350px] bg-white border shadow-xl rounded-xl overflow-hidden z-50 flex flex-col">
+        <div className="fixed bottom-20 right-6 w-[360px] bg-white border shadow-xl rounded-xl overflow-hidden z-50 flex flex-col">
 
           {/* HEADER */}
           <div className="bg-blue-600 text-white p-3 font-semibold flex justify-between items-center">
@@ -96,7 +105,7 @@ export default function AiChat() {
                 className={`p-2 rounded-lg text-sm max-w-[80%] ${
                   m.role === "user"
                     ? "ml-auto bg-blue-600 text-white"
-                    : "bg-white border"
+                    : "bg-white border text-slate-700"
                 }`}
               >
                 {m.text}
@@ -104,28 +113,30 @@ export default function AiChat() {
             ))}
 
             {loading && (
-              <div className="text-xs text-slate-500">
-                AI is typing...
+              <div className="text-xs text-slate-500 animate-pulse">
+                AI is thinking...
               </div>
             )}
           </div>
 
           {/* INPUT */}
-          <div className="flex p-2 border-t gap-2">
+          <div className="flex p-2 border-t gap-2 bg-white">
             <input
               className="flex-1 border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about sales, stock..."
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") sendMessage();
+              }}
             />
 
             <button
               onClick={sendMessage}
               disabled={loading}
-              className={`px-3 rounded text-white ${
+              className={`px-3 rounded text-white transition ${
                 loading
-                  ? "bg-blue-300"
+                  ? "bg-blue-300 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
             >

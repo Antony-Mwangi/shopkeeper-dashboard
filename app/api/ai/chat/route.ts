@@ -1,22 +1,39 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
 
 type Message = {
   role: "user" | "assistant";
   content: string;
 };
 
+type JwtUser = {
+  id: string;
+};
+
+const groqApiKey = process.env.GROQ_API_KEY;
+
+if (!groqApiKey) {
+  console.warn("⚠️ GROQ_API_KEY is missing");
+}
+
+const groq = new Groq({
+  apiKey: groqApiKey || "",
+});
+
 export async function POST(req: Request) {
   try {
-    const { message, history, context } = await req.json();
+    const { message, history = [], context = {} } = await req.json();
 
-    // ---- AUTH ----
+    if (!message) {
+      return NextResponse.json(
+        { error: "Message is required" },
+        { status: 400 }
+      );
+    }
+
+    /* ================= AUTH FIX ================= */
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
@@ -27,42 +44,45 @@ export async function POST(req: Request) {
       );
     }
 
-    const user: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const user = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as JwtUser;
+
     const userId = user.id;
 
-    // ---- SYSTEM PROMPT ----
+    /* ================= SYSTEM PROMPT ================= */
     const systemPrompt = `
 You are ShopFlow AI Assistant.
 
-You help users with:
+You help with:
 - sales analytics
-- inventory/stock management
+- inventory management
+- top products
 - profit insights
-- business decisions
 
 Context:
-${JSON.stringify(context || {})}
+${JSON.stringify(context)}
 
 Rules:
 - Be concise
 - Use business data when available
-- If data is missing, ask questions
-- Always act like a SaaS analytics assistant
+- If missing data, ask questions
+- Do not hallucinate numbers
 `;
 
-    // ---- SAFE HISTORY ----
+    /* ================= SAFE HISTORY ================= */
     const safeHistory: Message[] = Array.isArray(history)
       ? history.filter(
           (m) =>
-            m &&
-            (m.role === "user" || m.role === "assistant") &&
-            typeof m.content === "string"
+            typeof m?.content === "string" &&
+            (m.role === "user" || m.role === "assistant")
         )
       : [];
 
-    // ---- OPENAI CALL ----
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    /* ================= GROQ CALL ================= */
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
       messages: [
         { role: "system", content: systemPrompt },
         ...safeHistory,
@@ -70,14 +90,7 @@ Rules:
       ],
     });
 
-    const reply = completion?.choices?.[0]?.message?.content;
-
-    if (!reply) {
-      return NextResponse.json(
-        { error: "AI returned empty response" },
-        { status: 500 }
-      );
-    }
+    const reply = completion.choices?.[0]?.message?.content || "";
 
     return NextResponse.json({
       reply,
