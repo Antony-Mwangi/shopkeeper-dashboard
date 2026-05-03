@@ -181,7 +181,7 @@ export default function AiChat() {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "ai",
-      text: "Hi 👋 I’m your ShopFlow AI. I can help you analyze sales trends, check stock levels, or update product info. What's on your mind?",
+      text: "Hi! How can I help with your ShopFlow data today?",
     },
   ]);
 
@@ -193,11 +193,8 @@ export default function AiChat() {
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
-
     const userText = input;
-    const currentMessages = [...messages];
-
-    setMessages([...currentMessages, { role: "user", text: userText }]);
+    setMessages((prev) => [...prev, { role: "user", text: userText }]);
     setInput("");
     setLoading(true);
 
@@ -207,138 +204,102 @@ export default function AiChat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userText,
-          history: currentMessages.map((m): ApiMessage => ({
+          history: messages.map((m): ApiMessage => ({
             role: m.role === "user" ? "user" : "assistant",
             content: m.text,
           })),
           context: { source: "dashboard" },
         }),
       });
-
       const data = await res.json();
-      setMessages((prev) => [
-        ...prev,
-        { role: "ai", text: data.reply || "I couldn't process that. Try again?" },
-      ]);
-    } catch (err: any) {
-      setMessages((prev) => [
-        ...prev,
-        { role: "ai", text: `⚠️ Connection error: ${err.message}` },
-      ]);
+      setMessages((prev) => [...prev, { role: "ai", text: data.reply || "No response." }]);
+    } catch (err) {
+      setMessages((prev) => [...prev, { role: "ai", text: "⚠️ Connection error." }]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="font-sans antialiased">
-      {/* TRIGGER BUTTON - Slightly smaller on mobile to save space */}
+    <div className="font-sans antialiased text-slate-900">
+      {/* COMPACT TRIGGER */}
       <button
         onClick={() => setOpen(!open)}
-        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] flex items-center gap-2 p-4 sm:px-4 sm:py-4 rounded-2xl shadow-2xl transition-all duration-300 active:scale-95 ${
-          open 
-          ? "bg-white text-black border border-slate-200 rotate-90" 
-          : "bg-black text-white hover:bg-slate-800"
-        }`}
+        className="fixed bottom-6 right-6 z-[70] flex items-center justify-center w-12 h-12 bg-black text-white rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
       >
-        {open ? <X size={20} className="sm:w-6 sm:h-6" /> : <MessageSquare size={20} className="sm:w-6 sm:h-6" />}
-        {!open && <span className="hidden sm:inline font-bold text-sm pr-2">Ask AI</span>}
+        {open ? <X size={20} /> : <MessageSquare size={20} />}
       </button>
 
-      {/* CHAT WINDOW */}
+      {/* COMPACT CHAT WINDOW */}
       {open && (
         <div className="
           fixed z-[60]
-          /* Mobile: full screen width, sits at bottom */
-          bottom-0 left-0 right-0 h-[85vh] 
-          /* Desktop: Floating window */
-          sm:bottom-24 sm:right-6 sm:left-auto sm:w-[420px] sm:h-[600px] sm:max-h-[70vh] 
-          bg-white sm:border sm:border-slate-200 shadow-2xl sm:rounded-3xl rounded-t-[2.5rem] 
+          /* Mobile: Bottom Drawer */
+          bottom-0 left-0 right-0 h-[60vh] 
+          /* Desktop: Compact Floating Window */
+          sm:bottom-20 sm:right-6 sm:left-auto sm:w-80 sm:h-[450px]
+          bg-white sm:border border-slate-200 shadow-2xl sm:rounded-2xl rounded-t-3xl 
           overflow-hidden flex flex-col 
-          animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-6 fade-in duration-300
+          animate-in slide-in-from-bottom-8 duration-200
         ">
           
-          {/* HEADER - Increased padding for thumb-reach on mobile */}
-          <div className="bg-black p-6 sm:p-5 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-tr from-slate-700 to-slate-500 rounded-lg flex items-center justify-center text-white">
-                <Bot size={18} />
+          {/* CLEAN HEADER */}
+          <div className="bg-slate-50 border-b border-slate-100 p-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-black rounded flex items-center justify-center text-white">
+                <Bot size={14} />
               </div>
-              <div>
-                <h3 className="text-sm font-black text-white leading-none">ShopFlow AI</h3>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active</span>
-                </div>
-              </div>
+              <span className="text-xs font-bold tracking-tight">ShopFlow Assistant</span>
             </div>
-            {/* Mobile-only close affordance */}
-            <button onClick={() => setOpen(false)} className="sm:hidden text-slate-400 p-2">
-               <X size={20} />
-            </button>
-            <div className="hidden sm:block">
-               <Sparkles size={14} className="text-slate-400" />
+            <div className="flex items-center gap-1.5">
+               <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+               <Sparkles size={12} className="text-slate-400" />
             </div>
           </div>
 
-          {/* MESSAGES AREA */}
+          {/* MESSAGES - Smaller text and tighter padding */}
           <div 
             ref={scrollRef}
-            className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/50 scroll-smooth"
+            className="flex-1 overflow-y-auto p-4 space-y-3 bg-white scroll-smooth"
           >
             {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[88%] sm:max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                    m.role === "user"
-                      ? "bg-black text-white rounded-tr-none"
-                      : "bg-white border border-slate-200 text-slate-800 rounded-tl-none font-medium"
-                  }`}
-                >
+              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[90%] px-3 py-2 rounded-xl text-[13px] leading-snug shadow-sm ${
+                  m.role === "user"
+                    ? "bg-black text-white rounded-tr-none"
+                    : "bg-slate-100 text-slate-800 rounded-tl-none border border-slate-200/50"
+                }`}>
                   {m.text}
                 </div>
               </div>
             ))}
-
             {loading && (
-              <div className="flex justify-start">
-                <div className="bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-none flex gap-1">
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
-                </div>
+              <div className="flex gap-1 p-1">
+                <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce" />
+                <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]" />
+                <div className="w-1 h-1 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]" />
               </div>
             )}
           </div>
 
-          {/* INPUT AREA - Safe area for mobile keyboards */}
-          <div className="p-4 pb-8 sm:pb-4 bg-white border-t border-slate-100">
+          {/* MINIMAL INPUT */}
+          <div className="p-3 border-t border-slate-100 bg-slate-50/50">
             <div className="relative flex items-center">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Message ShopFlow..."
+                placeholder="Ask me anything..."
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                className="w-full pl-4 pr-12 py-4 sm:py-3.5 bg-slate-100 border-none rounded-2xl text-base sm:text-sm font-medium text-black focus:ring-2 focus:ring-black transition-all outline-none placeholder:text-slate-400"
+                className="w-full pl-3 pr-10 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-black transition-colors"
               />
               <button
                 onClick={sendMessage}
                 disabled={loading || !input.trim()}
-                className={`absolute right-2 p-2 rounded-xl transition-all ${
-                  loading || !input.trim() 
-                  ? "text-slate-300" 
-                  : "bg-black text-white shadow-lg"
-                }`}
+                className="absolute right-1.5 p-1.5 text-slate-400 hover:text-black disabled:opacity-30"
               >
-                <Send size={20} />
+                <Send size={14} />
               </button>
             </div>
-            <p className="hidden sm:block text-[10px] text-center text-slate-400 mt-3 font-medium uppercase tracking-tighter">
-              Powered by ShopFlow Intelligence
-            </p>
           </div>
         </div>
       )}
