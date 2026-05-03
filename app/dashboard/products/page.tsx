@@ -281,7 +281,6 @@
 //   );
 // }
 
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -432,7 +431,7 @@ export default function ProductsPage() {
 
           {/* TABLE CARD */}
           <main className="xl:col-span-3 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
               <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">
                 Live Inventory ({products.length})
               </h2>
@@ -444,9 +443,9 @@ export default function ProductsPage() {
                   <p className="text-slate-400 font-medium italic">No products found in the database.</p>
                 </div>
               ) : (
-                <table className="w-full">
+                <table className="w-full min-w-[700px]">
                   <thead>
-                    <tr className="bg-slate-50/50 text-slate-500 border-b border-slate-100">
+                    <tr className="bg-slate-50 text-slate-500 border-b border-slate-100">
                       <th className="p-4 text-left text-xs font-bold uppercase tracking-tighter">Product Info</th>
                       <th className="p-4 text-left text-xs font-bold uppercase tracking-tighter">Category</th>
                       <th className="p-4 text-right text-xs font-bold uppercase tracking-tighter">Price</th>
@@ -456,13 +455,13 @@ export default function ProductsPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {products.map((p) => (
-                      <tr key={p._id} className="hover:bg-slate-50/80 transition-colors group">
+                      <tr key={p._id} className="hover:bg-slate-50/80 transition-colors">
                         <td className="p-4">
                           <span className="font-bold text-black block">{p.name}</span>
                           <span className="text-[10px] text-slate-400 font-mono uppercase tracking-tighter">{p._id.slice(-8)}</span>
                         </td>
                         <td className="p-4">
-                          <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+                          <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold">
                             {p.category || "General"}
                           </span>
                         </td>
@@ -475,20 +474,21 @@ export default function ProductsPage() {
                           </span>
                         </td>
                         <td className="p-4">
-                          <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {/* STATIC ACTION BUTTONS */}
+                          <div className="flex justify-center items-center gap-1.5">
                             <button
                               onClick={() => setEditing(p)}
-                              className="p-2 hover:bg-slate-200 rounded-lg transition-colors text-slate-600"
-                              title="Edit"
+                              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:border-black hover:text-black transition-all shadow-sm"
                             >
                               <EditIcon />
+                              <span>Edit</span>
                             </button>
                             <button
                               onClick={() => handleDelete(p._id)}
-                              className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-500"
-                              title="Delete"
+                              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50 hover:border-red-200 transition-all shadow-sm"
                             >
                               <DeleteIcon />
+                              <span>Del</span>
                             </button>
                           </div>
                         </td>
@@ -508,7 +508,7 @@ export default function ProductsPage() {
           <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6 border-b border-slate-100">
               <h2 className="text-xl font-black text-black">Update Product</h2>
-              <p className="text-sm text-slate-500">Modify the details for {editing.name}</p>
+              <p className="text-sm text-slate-500">Modify details for {editing.name}</p>
             </div>
             
             <div className="p-6 space-y-4">
@@ -577,12 +577,12 @@ export default function ProductsPage() {
 
 function EditIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
   );
 }
 
 function DeleteIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
   );
 }
