@@ -185,7 +185,6 @@ export default function AiChat() {
     },
   ]);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -232,26 +231,35 @@ export default function AiChat() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[60] font-sans antialiased">
-      {/* TRIGGER BUTTON */}
+    <div className="font-sans antialiased">
+      {/* TRIGGER BUTTON - Slightly smaller on mobile to save space */}
       <button
         onClick={() => setOpen(!open)}
-        className={`flex items-center gap-2 px-4 py-4 rounded-2xl shadow-2xl transition-all duration-300 active:scale-95 ${
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] flex items-center gap-2 p-4 sm:px-4 sm:py-4 rounded-2xl shadow-2xl transition-all duration-300 active:scale-95 ${
           open 
           ? "bg-white text-black border border-slate-200 rotate-90" 
           : "bg-black text-white hover:bg-slate-800"
         }`}
       >
-        {open ? <X size={24} /> : <MessageSquare size={24} />}
-        {!open && <span className="font-bold text-sm pr-2">Ask AI</span>}
+        {open ? <X size={20} className="sm:w-6 sm:h-6" /> : <MessageSquare size={20} className="sm:w-6 sm:h-6" />}
+        {!open && <span className="hidden sm:inline font-bold text-sm pr-2">Ask AI</span>}
       </button>
 
       {/* CHAT WINDOW */}
       {open && (
-        <div className="absolute bottom-20 right-0 w-[380px] sm:w-[420px] max-h-[600px] h-[70vh] bg-white border border-slate-200 shadow-2xl rounded-3xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-6 fade-in duration-300">
+        <div className="
+          fixed z-[60]
+          /* Mobile: full screen width, sits at bottom */
+          bottom-0 left-0 right-0 h-[85vh] 
+          /* Desktop: Floating window */
+          sm:bottom-24 sm:right-6 sm:left-auto sm:w-[420px] sm:h-[600px] sm:max-h-[70vh] 
+          bg-white sm:border sm:border-slate-200 shadow-2xl sm:rounded-3xl rounded-t-[2.5rem] 
+          overflow-hidden flex flex-col 
+          animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-6 fade-in duration-300
+        ">
           
-          {/* HEADER */}
-          <div className="bg-black p-5 flex justify-between items-center">
+          {/* HEADER - Increased padding for thumb-reach on mobile */}
+          <div className="bg-black p-6 sm:p-5 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-tr from-slate-700 to-slate-500 rounded-lg flex items-center justify-center text-white">
                 <Bot size={18} />
@@ -264,7 +272,11 @@ export default function AiChat() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            {/* Mobile-only close affordance */}
+            <button onClick={() => setOpen(false)} className="sm:hidden text-slate-400 p-2">
+               <X size={20} />
+            </button>
+            <div className="hidden sm:block">
                <Sparkles size={14} className="text-slate-400" />
             </div>
           </div>
@@ -280,7 +292,7 @@ export default function AiChat() {
                 className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                  className={`max-w-[88%] sm:max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
                     m.role === "user"
                       ? "bg-black text-white rounded-tr-none"
                       : "bg-white border border-slate-200 text-slate-800 rounded-tl-none font-medium"
@@ -302,15 +314,15 @@ export default function AiChat() {
             )}
           </div>
 
-          {/* INPUT AREA */}
-          <div className="p-4 bg-white border-t border-slate-100">
+          {/* INPUT AREA - Safe area for mobile keyboards */}
+          <div className="p-4 pb-8 sm:pb-4 bg-white border-t border-slate-100">
             <div className="relative flex items-center">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Check my best selling products..."
+                placeholder="Message ShopFlow..."
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                className="w-full pl-4 pr-12 py-3.5 bg-slate-100 border-none rounded-2xl text-sm font-medium text-black focus:ring-2 focus:ring-black transition-all outline-none placeholder:text-slate-400"
+                className="w-full pl-4 pr-12 py-4 sm:py-3.5 bg-slate-100 border-none rounded-2xl text-base sm:text-sm font-medium text-black focus:ring-2 focus:ring-black transition-all outline-none placeholder:text-slate-400"
               />
               <button
                 onClick={sendMessage}
@@ -318,13 +330,13 @@ export default function AiChat() {
                 className={`absolute right-2 p-2 rounded-xl transition-all ${
                   loading || !input.trim() 
                   ? "text-slate-300" 
-                  : "bg-black text-white shadow-lg hover:scale-105 active:scale-95"
+                  : "bg-black text-white shadow-lg"
                 }`}
               >
-                <Send size={18} />
+                <Send size={20} />
               </button>
             </div>
-            <p className="text-[10px] text-center text-slate-400 mt-3 font-medium uppercase tracking-tighter">
+            <p className="hidden sm:block text-[10px] text-center text-slate-400 mt-3 font-medium uppercase tracking-tighter">
               Powered by ShopFlow Intelligence
             </p>
           </div>
