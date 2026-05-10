@@ -1,8 +1,6 @@
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-
 import bcrypt from "bcryptjs";
-
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -10,6 +8,20 @@ export async function POST(req: Request) {
     await connectDB();
 
     const { token, password } = await req.json();
+
+    if (!token || !password) {
+      return NextResponse.json(
+        { message: "Token and password are required" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json(
+        { message: "Password too short" },
+        { status: 400 }
+      );
+    }
 
     const user = await User.findOne({
       resetToken: token,
@@ -24,7 +36,6 @@ export async function POST(req: Request) {
     }
 
     user.password = await bcrypt.hash(password, 10);
-
     user.resetToken = undefined;
     user.resetTokenExpiry = undefined;
 

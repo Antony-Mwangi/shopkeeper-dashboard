@@ -1,8 +1,6 @@
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-
 import { NextResponse } from "next/server";
-
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
@@ -15,9 +13,10 @@ export async function POST(req: Request) {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return NextResponse.json({
-        message: "If account exists, reset link sent",
-      });
+      return NextResponse.json(
+        { message: "If account exists, reset link sent" },
+        { status: 200 }
+      );
     }
 
     const token = crypto.randomBytes(32).toString("hex");
@@ -37,17 +36,18 @@ export async function POST(req: Request) {
       },
     });
 
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Reset Your Password",
       html: `
-        <div>
+        <div style="font-family:Arial;padding:20px">
           <h2>Password Reset</h2>
+          <p>Click below to reset:</p>
 
-          <p>Click the link below to reset your password:</p>
-
-          <a href="${resetLink}">
+          <a href="${resetLink}" 
+             style="display:inline-block;padding:10px 15px;
+             background:#2563eb;color:white;text-decoration:none;border-radius:5px;">
             Reset Password
           </a>
 
@@ -56,11 +56,15 @@ export async function POST(req: Request) {
       `,
     });
 
+    console.log("Email sent:", info.response);
+
     return NextResponse.json({
       message: "Password reset email sent",
     });
 
   } catch (error: any) {
+    console.error("Forgot password error:", error);
+
     return NextResponse.json(
       { message: error.message },
       { status: 500 }
