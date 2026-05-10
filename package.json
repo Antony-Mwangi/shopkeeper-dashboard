@@ -23,12 +23,14 @@
     "react": "19.2.3",
     "react-countup": "^6.5.3",
     "react-dom": "19.2.3",
-    "recharts": "^3.8.1"
+    "recharts": "^3.8.1",
+    "twilio": "^6.0.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
