@@ -13,7 +13,7 @@ export async function getTotalSales(userId: string) {
     {
       $group: {
         _id: null,
-        total: { $sum: "$total" },
+        total: { $sum: "ksh total" }, //usd to ksh  
       },
     },
   ]);
