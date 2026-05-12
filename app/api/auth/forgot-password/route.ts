@@ -12,18 +12,18 @@ export async function POST(req: Request) {
 
     const user = await User.findOne({ email });
 
+    // always return same response (security)
     if (!user) {
-      return NextResponse.json(
-        { message: "If account exists, reset link sent" },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: "If account exists, reset link sent",
+      });
     }
 
+    // generate token
     const token = crypto.randomBytes(32).toString("hex");
 
     user.resetToken = token;
-    user.resetTokenExpiry = Date.now() + 1000 * 60 * 15;
-
+    user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 min
     await user.save();
 
     const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/${token}`;
@@ -36,18 +36,21 @@ export async function POST(req: Request) {
       },
     });
 
-    const info = await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await transporter.verify(); // 👈 IMPORTANT: checks Gmail config
+
+    await transporter.sendMail({
+      from: `"ShopFlow" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Reset Your Password",
       html: `
         <div style="font-family:Arial;padding:20px">
           <h2>Password Reset</h2>
-          <p>Click below to reset:</p>
+
+          <p>Click the button below:</p>
 
           <a href="${resetLink}" 
              style="display:inline-block;padding:10px 15px;
-             background:#2563eb;color:white;text-decoration:none;border-radius:5px;">
+             background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;">
             Reset Password
           </a>
 
@@ -55,8 +58,6 @@ export async function POST(req: Request) {
         </div>
       `,
     });
-
-    console.log("Email sent:", info.response);
 
     return NextResponse.json({
       message: "Password reset email sent",
@@ -66,7 +67,7 @@ export async function POST(req: Request) {
     console.error("Forgot password error:", error);
 
     return NextResponse.json(
-      { message: error.message },
+      { message: "Email sending failed. Check server logs." },
       { status: 500 }
     );
   }

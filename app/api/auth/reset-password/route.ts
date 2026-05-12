@@ -9,7 +9,7 @@ export async function POST(req: Request) {
 
     const { token, password } = await req.json();
 
-    if (!token || !password) {
+    if (!token || !password || !password.trim()) {
       return NextResponse.json(
         { message: "Token and password are required" },
         { status: 400 }
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     if (password.length < 6) {
       return NextResponse.json(
-        { message: "Password too short" },
+        { message: "Password must be at least 6 characters" },
         { status: 400 }
       );
     }
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     return NextResponse.json(
-      { message: error.message },
+      { message: "Server error" },
       { status: 500 }
     );
   }
