@@ -75,7 +75,7 @@ export type MemoryValue =
 
 /* ================= STRUCTURED MEMORY LAYERS ================= */
 export type Preferences = {
-  currency?: "KSH" | "USD" | string;
+  currency?: "KSH"  | string;
   currencySymbol?: string;
   region?: string;
 };
