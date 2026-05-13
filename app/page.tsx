@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import { 
   BarChart3, 
   Package, 
@@ -13,6 +14,8 @@ import {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white selection:bg-blue-100">
+            <Header />
+
       
       {/* --- HERO SECTION --- */}
       <section className="relative pt-16 pb-24 overflow-hidden">
