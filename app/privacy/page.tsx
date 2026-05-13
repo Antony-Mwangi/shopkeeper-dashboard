@@ -37,7 +37,7 @@ export default function PrivacyPage() {
         </Link>
 
         <Link
-          href="/dashboard"
+          href="/login"
           className="text-sm font-semibold bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
         >
           Go to Dashboard
