@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   );
 
-  //NOT LOGGED IN 
+  //NOT LOGGED IN
   if (!token && isProtectedRoute) {
     return NextResponse.redirect(
       new URL("/login", request.url)
@@ -37,7 +37,7 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// ROUTES TO PROTECT 
+//ROUTES TO PROTECT 
 export const config = {
   matcher: [
     "/dashboard/:path*",
