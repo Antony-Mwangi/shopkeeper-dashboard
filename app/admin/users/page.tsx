@@ -61,15 +61,26 @@ export default function AdminUsersPage() {
 
       {/* SEARCH */}
       <div className="mb-6 flex flex-col md:flex-row gap-3">
-        <input
-          type="text"
-          placeholder="Search by name or email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full md:flex-1 bg-white border border-slate-300 px-4 py-3 rounded-lg 
-                     text-slate-900 placeholder-slate-400
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-        />
+       <input
+  type="text"
+  placeholder="Search by name or email..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="
+    w-full md:flex-1
+    bg-white text-gray-900
+    border-2 border-gray-400
+    px-4 py-3 rounded-lg
+
+    placeholder-gray-500
+
+    focus:outline-none
+    focus:ring-2 focus:ring-blue-600
+    focus:border-blue-600
+
+    shadow-md
+  "
+/>
 
         <button
           onClick={fetchUsers}
