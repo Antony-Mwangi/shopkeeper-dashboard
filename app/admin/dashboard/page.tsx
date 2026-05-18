@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import StatsCard from "@/app/admin/components/StatsCard";
+
+import {
+  Users,
+  Package,
+  ShoppingCart,
+  DollarSign,
+  AlertTriangle,
+  Activity,
+  ArrowRight,
+} from "lucide-react";
 
 type Analytics = {
   totalUsers: number;
@@ -13,38 +22,21 @@ type Analytics = {
   activeUsers: number;
 };
 
-type User = {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-};
-
 export default function AdminDashboardPage() {
   const router = useRouter();
 
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAll();
+    fetchAnalytics();
   }, []);
 
-  async function fetchAll() {
+  async function fetchAnalytics() {
     try {
-      const [aRes, uRes] = await Promise.all([
-        fetch("/api/admin/analytics"),
-        fetch("/api/admin/users"),
-      ]);
-
-      const aData = await aRes.json();
-      const uData = await uRes.json();
-
-      setAnalytics(aData);
-      setUsers(uData);
+      const res = await fetch("/api/admin/analytics");
+      const data = await res.json();
+      setAnalytics(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -52,166 +44,164 @@ export default function AdminDashboardPage() {
     }
   }
 
-  async function toggleUser(userId: string) {
-    await fetch("/api/admin/users/toggle", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
-
-    fetchAll();
-  }
-
   if (loading || !analytics) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="w-14 h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-10 space-y-10">
+    <div className="min-h-screen bg-slate-50 p-6 md:p-10 space-y-10">
 
       {/* HEADER */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-          Admin Dashboard
+        <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
+          Admin Overview
         </h1>
-        <p className="text-gray-500 mt-2">
-          Overview + User Management
+        <p className="text-slate-600 mt-2">
+          Real-time system analytics & performance insights
         </p>
       </div>
 
-      {/* STATS */}
+      {/* KPI GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
 
-        {/* CLICKABLE USERS CARD */}
-        <div onClick={() => router.push("/admin/users")} className="cursor-pointer">
-          <StatsCard
-            title="Total Users"
-            value={analytics.totalUsers}
-            icon="👥"
-            color="from-blue-600 to-blue-700"
-          />
-        </div>
+        <Card
+          icon={<Users className="w-6 h-6" />}
+          title="Total Users"
+          value={analytics.totalUsers}
+          color="bg-blue-600"
+          onClick={() => router.push("/admin/users")}
+        />
 
-        <StatsCard
+        <Card
+          icon={<Package className="w-6 h-6" />}
           title="Total Products"
           value={analytics.totalProducts}
-          icon="📦"
-          color="from-purple-600 to-purple-700"
+          color="bg-purple-600"
+          onClick={() => router.push("/admin/products")}
         />
 
-        <StatsCard
+        <Card
+          icon={<ShoppingCart className="w-6 h-6" />}
           title="Total Sales"
           value={analytics.totalSales}
-          icon="🛒"
-          color="from-green-600 to-green-700"
+          color="bg-green-600"
         />
 
-        <StatsCard
+        <Card
+          icon={<DollarSign className="w-6 h-6" />}
           title="Revenue"
           value={`KSH ${(analytics.totalRevenue ?? 0).toLocaleString()}`}
-          icon="💰"
-          color="from-yellow-500 to-orange-500"
+          color="bg-yellow-500"
         />
 
-        <StatsCard
-          title="Low Stock"
+        <Card
+          icon={<AlertTriangle className="w-6 h-6" />}
+          title="Low Stock Alerts"
           value={analytics.lowStockProducts}
-          icon="⚠️"
-          color="from-red-500 to-red-700"
+          color="bg-red-600"
+          onClick={() => router.push("/admin/products?filter=low-stock")}
         />
 
-        <StatsCard
+        <Card
+          icon={<Activity className="w-6 h-6" />}
           title="Active Users"
           value={analytics.activeUsers}
-          icon="📈"
-          color="from-cyan-500 to-cyan-700"
+          color="bg-cyan-600"
         />
       </div>
 
-      {/* USER MANAGEMENT SECTION */}
+      {/* QUICK ACTIONS */}
       <div className="bg-white rounded-2xl shadow border p-6">
 
-        {/* CLICKABLE HEADER */}
-        <div className="flex justify-between items-center mb-5">
-          <h2
+        <h2 className="text-xl font-bold text-slate-900 mb-6">
+          Quick Actions
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-4">
+
+          <ActionCard
+            title="Manage Users"
+            desc="View, search and manage all users"
             onClick={() => router.push("/admin/users")}
-            className="text-xl font-bold text-gray-900 cursor-pointer hover:text-blue-600"
-          >
-            User Management
-          </h2>
+          />
 
-          <button
-            onClick={() => router.push("/admin/users")}
-            className="text-sm bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            View All Users
-          </button>
-        </div>
+          <ActionCard
+            title="Products"
+            desc="Inventory & stock management"
+            onClick={() => router.push("/admin/products")}
+          />
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <ActionCard
+            title="Sales Analytics"
+            desc="View revenue and performance"
+            onClick={() => router.push("/admin/sales")}
+          />
 
-            <thead>
-              <tr className="border-b text-gray-600 text-sm">
-                <th className="py-3">Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {users.map((user) => (
-                <tr key={user._id} className="border-b">
-
-                  <td className="py-4 font-medium text-gray-900">
-                    {user.name}
-                  </td>
-
-                  <td className="text-gray-600">
-                    {user.email}
-                  </td>
-
-                  <td>
-                    <span className="text-sm px-2 py-1 bg-gray-100 rounded">
-                      {user.role}
-                    </span>
-                  </td>
-
-                  <td>
-                    <span
-                      className={`text-sm px-2 py-1 rounded ${
-                        user.isActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {user.isActive ? "Active" : "Disabled"}
-                    </span>
-                  </td>
-
-                  <td>
-                    <button
-                      onClick={() => toggleUser(user._id)}
-                      className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
-                    >
-                      Toggle
-                    </button>
-                  </td>
-
-                </tr>
-              ))}
-            </tbody>
-
-          </table>
         </div>
       </div>
 
+    </div>
+  );
+}
+
+/* ================= KPI CARD ================= */
+function Card({
+  icon,
+  title,
+  value,
+  color,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  value: any;
+  color: string;
+  onClick?: () => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className={`cursor-pointer bg-white border rounded-2xl p-6 shadow-sm hover:shadow-lg transition`}
+    >
+      <div className="flex items-center justify-between">
+        <div className={`p-3 rounded-xl text-white ${color}`}>
+          {icon}
+        </div>
+
+        {onClick && <ArrowRight className="w-5 h-5 text-slate-400" />}
+      </div>
+
+      <div className="mt-5">
+        <p className="text-slate-500 text-sm">{title}</p>
+        <h3 className="text-2xl font-bold text-slate-900 mt-1">
+          {value}
+        </h3>
+      </div>
+    </div>
+  );
+}
+
+/* ================= ACTION CARD ================= */
+function ActionCard({
+  title,
+  desc,
+  onClick,
+}: {
+  title: string;
+  desc: string;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className="cursor-pointer border rounded-xl p-5 hover:shadow-md transition bg-slate-50 hover:bg-white"
+    >
+      <h3 className="font-semibold text-slate-900">{title}</h3>
+      <p className="text-sm text-slate-600 mt-1">{desc}</p>
     </div>
   );
 }
