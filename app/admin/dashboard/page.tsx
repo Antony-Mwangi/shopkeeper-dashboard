@@ -9,12 +9,14 @@ import {
   UserX,
   Shield,
   ArrowRight,
+  AlertTriangle,
+  Activity,
 } from "lucide-react";
 
 type Analytics = {
   totalUsers: number;
   activeUsers: number;
-  suspendedUsers?: number;
+  suspendedUsers: number;
 };
 
 export default function AdminDashboardPage() {
@@ -33,12 +35,12 @@ export default function AdminDashboardPage() {
       const data = await res.json();
 
       setAnalytics({
-        totalUsers: data.totalUsers,
-        activeUsers: data.activeUsers,
+        totalUsers: data.totalUsers || 0,
+        activeUsers: data.activeUsers || 0,
         suspendedUsers: data.suspendedUsers || 0,
       });
     } catch (err) {
-      console.error(err);
+      console.error("Analytics error:", err);
     } finally {
       setLoading(false);
     }
@@ -58,14 +60,14 @@ export default function AdminDashboardPage() {
       {/* HEADER */}
       <div>
         <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-          User Administration Panel
+          Admin Control Panel
         </h1>
         <p className="text-slate-600 mt-2">
-          Manage platform user accounts and access control
+          Manage user accounts, access, and platform safety
         </p>
       </div>
 
-      {/* KPI GRID (USER ONLY) */}
+      {/* KPI CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
 
         <Card
@@ -87,48 +89,67 @@ export default function AdminDashboardPage() {
         <Card
           icon={<UserX className="w-6 h-6" />}
           title="Suspended Users"
-          value={analytics.suspendedUsers || 0}
+          value={analytics.suspendedUsers}
           color="bg-red-600"
           onClick={() => router.push("/admin/users?filter=suspended")}
         />
 
+        <Card
+          icon={<Shield className="w-6 h-6" />}
+          title="Security Overview"
+          value="Protected"
+          color="bg-purple-600"
+        />
+
+        <Card
+          icon={<AlertTriangle className="w-6 h-6" />}
+          title="Risk Alerts"
+          value="0"
+          color="bg-yellow-500"
+        />
+
+        <Card
+          icon={<Activity className="w-6 h-6" />}
+          title="System Activity"
+          value="Live"
+          color="bg-cyan-600"
+        />
       </div>
 
-      {/* QUICK ACTIONS */}
+      {/* ACTIONS */}
       <div className="bg-white rounded-2xl shadow border p-6">
 
         <h2 className="text-xl font-bold text-slate-900 mb-6">
-          User Management Actions
+          User Management
         </h2>
 
         <div className="grid md:grid-cols-3 gap-4">
 
           <ActionCard
             title="Manage Users"
-            desc="Search, suspend, activate or delete users"
+            desc="Search, suspend, activate, delete accounts"
             onClick={() => router.push("/admin/users")}
           />
 
           <ActionCard
-            title="Account Security"
-            desc="Reset passwords and manage access control"
-            onClick={() => router.push("/admin/users?tab=security")}
+            title="Suspended Accounts"
+            desc="View and restore suspended users"
+            onClick={() => router.push("/admin/users?filter=suspended")}
           />
 
           <ActionCard
-            title="Audit Logs"
-            desc="Track user activity across platform"
-            onClick={() => router.push("/admin/audit")}
+            title="Security Logs"
+            desc="Track login attempts & account actions"
+            onClick={() => router.push("/admin/logs")}
           />
 
         </div>
       </div>
-
     </div>
   );
 }
 
-/* ================= KPI CARD ================= */
+/* ================= CARD ================= */
 function Card({
   icon,
   title,

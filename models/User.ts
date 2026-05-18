@@ -49,6 +49,13 @@ const UserSchema = new Schema(
       default: "user",
     },
 
+    // ✅ ADD THIS (IMPORTANT)
+    status: {
+      type: String,
+      enum: ["active", "suspended"],
+      default: "active",
+    },
+
     resetToken: String,
     resetTokenExpiry: Date,
   },
@@ -57,7 +64,6 @@ const UserSchema = new Schema(
   }
 );
 
-const User =
-  models.User || model("User", UserSchema);
+const User = models.User || model("User", UserSchema);
 
 export default User;

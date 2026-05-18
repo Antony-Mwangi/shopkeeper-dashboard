@@ -7,14 +7,24 @@ export async function GET(req: Request) {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
-    const search = searchParams.get("search") || "";
 
-    const users = await User.find({
+    const search = searchParams.get("search") || "";
+    const status = searchParams.get("status"); // 👈 NEW (active | suspended)
+
+    // 🔎 BUILD QUERY DYNAMICALLY
+    const query: any = {
       $or: [
         { name: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
       ],
-    })
+    };
+
+    // 🎯 FILTER BY STATUS IF PROVIDED
+    if (status === "active" || status === "suspended") {
+      query.status = status;
+    }
+
+    const users = await User.find(query)
       .select("-password")
       .sort({ createdAt: -1 });
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
 import User from "@/models/User";
+import { connectDB } from "@/lib/db";
 
 export async function PUT(req: Request) {
   try {
@@ -11,18 +11,22 @@ export async function PUT(req: Request) {
     const user = await User.findById(userId);
 
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 404 }
+      );
     }
 
-    user.status = user.status === "active" ? "suspended" : "active";
+    user.isSuspended = false;
+    user.isActive = true;
 
     await user.save();
 
     return NextResponse.json({
-      message: "User status updated",
-      status: user.status,
+      message: "User activated successfully",
     });
-  } catch (error) {
+
+  } catch (err) {
     return NextResponse.json(
       { message: "Server error" },
       { status: 500 }
