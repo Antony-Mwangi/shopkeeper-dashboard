@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+
+import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Product from "@/models/Product";
 import SaleModel from "@/models/sales";
-import { connectDB } from "@/lib/db";
 
 export async function GET() {
   try {
@@ -38,20 +39,21 @@ export async function GET() {
       totalProducts,
       totalSales,
       totalRevenue,
-      lowStock,
+      lowStockProducts: lowStock,
+      activeUsers: totalUsers, // fallback (until you track real active users)
       recentSales,
     });
   } catch (error) {
-    console.error("Analytics API error:", error);
+    console.error("Admin analytics error:", error);
 
     return NextResponse.json(
       {
-        message: "Server Error",
         totalUsers: 0,
         totalProducts: 0,
         totalSales: 0,
         totalRevenue: 0,
-        lowStock: 0,
+        lowStockProducts: 0,
+        activeUsers: 0,
         recentSales: [],
       },
       { status: 500 }
