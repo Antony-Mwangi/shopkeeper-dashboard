@@ -2,11 +2,19 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     await connectDB();
 
-    const users = await User.find({})
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get("search") || "";
+
+    const users = await User.find({
+      $or: [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ],
+    })
       .select("-password")
       .sort({ createdAt: -1 });
 

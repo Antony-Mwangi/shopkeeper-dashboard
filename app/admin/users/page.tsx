@@ -6,95 +6,140 @@ type User = {
   _id: string;
   name: string;
   email: string;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
+  isActive?: boolean;
 };
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
+  /* ================= FETCH USERS ================= */
   async function fetchUsers() {
     try {
-      const res = await fetch("/api/admin/users");
+      setLoading(true);
+
+      const res = await fetch(`/api/admin/users?search=${search}`);
       const data = await res.json();
+
       setUsers(data);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch users:", err);
     } finally {
       setLoading(false);
     }
   }
 
-  async function toggleUser(userId: string) {
-    await fetch("/api/admin/users/toggle", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
-
+  /* ================= INITIAL LOAD ================= */
+  useEffect(() => {
     fetchUsers();
-  }
+  }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-      </div>
+  /* ================= DELETE USER ================= */
+  async function deleteUser(userId: string) {
+    const confirmDelete = confirm(
+      "Are you sure you want to delete this user?"
     );
+
+    if (!confirmDelete) return;
+
+    try {
+      await fetch("/api/admin/users/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+
+      fetchUsers();
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-3xl font-bold mb-6">User Management</h1>
+    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
+      {/* HEADER */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+        <p className="text-gray-500">Search, manage and delete users</p>
+      </div>
 
-      <div className="bg-white rounded-xl shadow overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-4">Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+      {/* SEARCH BAR */}
+      <div className="mb-4 flex gap-3">
+        <input
+          type="text"
+          placeholder="Search by name or email..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
 
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id} className="border-t">
-                <td className="p-4">{user.name}</td>
-                <td>{user.email}</td>
-                <td>{user.role}</td>
-                <td>
-                  <span
-                    className={`px-2 py-1 rounded text-sm ${
-                      user.isActive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {user.isActive ? "Active" : "Disabled"}
-                  </span>
-                </td>
+        <button
+          onClick={fetchUsers}
+          className="bg-blue-600 text-white px-4 rounded"
+        >
+          Search
+        </button>
+      </div>
 
-                <td>
-                  <button
-                    onClick={() => toggleUser(user._id)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded"
-                  >
-                    Toggle
-                  </button>
-                </td>
+      {/* TABLE */}
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="p-6 text-gray-500">Loading users...</div>
+        ) : (
+          <table className="w-full text-left">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-3">Name</th>
+                <th className="p-3">Email</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {users.map((user) => (
+                <tr key={user._id} className="border-t">
+                  <td className="p-3">{user.name}</td>
+                  <td className="p-3">{user.email}</td>
+
+                  <td className="p-3">
+                    {user.isActive ? (
+                      <span className="text-green-600">Active</span>
+                    ) : (
+                      <span className="text-red-600">Inactive</span>
+                    )}
+                  </td>
+
+                  {/* ACTIONS */}
+                  <td className="p-3 flex gap-2">
+                    <button
+                      className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+                      onClick={() => alert("Toggle feature later")}
+                    >
+                      Toggle
+                    </button>
+
+                    <button
+                      className="px-3 py-1 bg-red-600 text-white rounded text-sm"
+                      onClick={() => deleteUser(user._id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="p-6 text-center text-gray-500">
+                    No users found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
