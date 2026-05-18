@@ -14,7 +14,6 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH USERS ================= */
   async function fetchUsers() {
     try {
       setLoading(true);
@@ -34,12 +33,8 @@ export default function AdminUsersPage() {
     fetchUsers();
   }, []);
 
-  /* ================= DELETE USER ================= */
   async function deleteUser(userId: string) {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete this user?"
-    );
-
+    const confirmDelete = confirm("Are you sure you want to delete this user?");
     if (!confirmDelete) return;
 
     await fetch("/api/admin/users/delete", {
@@ -52,110 +47,123 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 md:p-10">
+    <div className="min-h-screen bg-slate-100 p-6 md:p-10">
+      
       {/* HEADER */}
       <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
           User Management
         </h1>
-        <p className="text-gray-600 mt-2">
-          Search, manage and control platform users
+        <p className="text-slate-600 mt-2">
+          Search, manage, and control platform users
         </p>
       </div>
 
-      {/* SEARCH BAR */}
+      {/* SEARCH */}
       <div className="mb-6 flex flex-col md:flex-row gap-3">
         <input
           type="text"
           placeholder="Search by name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full md:flex-1 border border-gray-300 bg-white px-4 py-3 rounded-lg 
+          className="w-full md:flex-1 bg-white border border-slate-300 px-4 py-3 rounded-lg 
+                     text-slate-900 placeholder-slate-400
                      focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
         />
 
         <button
           onClick={fetchUsers}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg 
-                     font-semibold transition"
+                     font-semibold shadow-md transition"
         >
           Search
         </button>
       </div>
 
-      {/* TABLE WRAPPER */}
-      <div className="bg-white rounded-2xl shadow-lg overflow-x-auto border border-gray-200">
+      {/* TABLE CARD */}
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+
         {loading ? (
-          <div className="p-10 text-center text-gray-500">
+          <div className="p-10 text-center text-slate-600">
             Loading users...
           </div>
         ) : (
-          <table className="w-full min-w-[700px]">
-            {/* HEADER */}
-            <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
-              <tr>
-                <th className="p-4 text-left">Name</th>
-                <th className="p-4 text-left">Email</th>
-                <th className="p-4 text-left">Status</th>
-                <th className="p-4 text-left">Actions</th>
-              </tr>
-            </thead>
+          <div className="overflow-x-auto">
 
-            {/* BODY */}
-            <tbody className="text-gray-800">
-              {users.map((user) => (
-                <tr
-                  key={user._id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
-                  <td className="p-4 font-medium">{user.name}</td>
-
-                  <td className="p-4 text-gray-600">{user.email}</td>
-
-                  <td className="p-4">
-                    {user.isActive ? (
-                      <span className="px-3 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="px-3 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
-                        Inactive
-                      </span>
-                    )}
-                  </td>
-
-                  {/* ACTIONS */}
-                  <td className="p-4 flex gap-2">
-                    <button
-                      className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
-                      onClick={() => alert("Toggle feature later")}
-                    >
-                      Toggle
-                    </button>
-
-                    <button
-                      className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md transition"
-                      onClick={() => deleteUser(user._id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-
-              {/* EMPTY STATE */}
-              {users.length === 0 && !loading && (
+            <table className="w-full min-w-[700px]">
+              
+              {/* HEADER */}
+              <thead className="bg-slate-900 text-white text-sm uppercase">
                 <tr>
-                  <td
-                    colSpan={4}
-                    className="p-10 text-center text-gray-500"
-                  >
-                    No users found
-                  </td>
+                  <th className="p-4 text-left">Name</th>
+                  <th className="p-4 text-left">Email</th>
+                  <th className="p-4 text-left">Status</th>
+                  <th className="p-4 text-left">Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+
+              {/* BODY */}
+              <tbody className="text-slate-800">
+
+                {users.map((user, index) => (
+                  <tr
+                    key={user._id}
+                    className={`
+                      border-b border-slate-200
+                      ${index % 2 === 0 ? "bg-white" : "bg-slate-50"}
+                      hover:bg-blue-50 transition
+                    `}
+                  >
+                    <td className="p-4 font-medium text-slate-900">
+                      {user.name}
+                    </td>
+
+                    <td className="p-4 text-slate-700">
+                      {user.email}
+                    </td>
+
+                    <td className="p-4">
+                      {user.isActive ? (
+                        <span className="px-3 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
+                          Inactive
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="p-4 flex gap-2">
+                      <button
+                        className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-sm"
+                        onClick={() => alert("Toggle feature later")}
+                      >
+                        Toggle
+                      </button>
+
+                      <button
+                        className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md shadow-sm"
+                        onClick={() => deleteUser(user._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {/* EMPTY */}
+                {users.length === 0 && !loading && (
+                  <tr>
+                    <td colSpan={4} className="p-10 text-center text-slate-600">
+                      No users found
+                    </td>
+                  </tr>
+                )}
+
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
