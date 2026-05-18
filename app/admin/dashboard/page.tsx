@@ -5,21 +5,16 @@ import { useRouter } from "next/navigation";
 
 import {
   Users,
-  Package,
-  ShoppingCart,
-  DollarSign,
-  AlertTriangle,
-  Activity,
+  UserCheck,
+  UserX,
+  Shield,
   ArrowRight,
 } from "lucide-react";
 
 type Analytics = {
   totalUsers: number;
-  totalProducts: number;
-  totalSales: number;
-  totalRevenue: number;
-  lowStockProducts: number;
   activeUsers: number;
+  suspendedUsers?: number;
 };
 
 export default function AdminDashboardPage() {
@@ -36,7 +31,12 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch("/api/admin/analytics");
       const data = await res.json();
-      setAnalytics(data);
+
+      setAnalytics({
+        totalUsers: data.totalUsers,
+        activeUsers: data.activeUsers,
+        suspendedUsers: data.suspendedUsers || 0,
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -58,14 +58,14 @@ export default function AdminDashboardPage() {
       {/* HEADER */}
       <div>
         <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-          Admin Overview
+          User Administration Panel
         </h1>
         <p className="text-slate-600 mt-2">
-          Real-time system analytics & performance insights
+          Manage platform user accounts and access control
         </p>
       </div>
 
-      {/* KPI GRID */}
+      {/* KPI GRID (USER ONLY) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
 
         <Card
@@ -77,68 +77,48 @@ export default function AdminDashboardPage() {
         />
 
         <Card
-          icon={<Package className="w-6 h-6" />}
-          title="Total Products"
-          value={analytics.totalProducts}
-          color="bg-purple-600"
-          onClick={() => router.push("/admin/products")}
-        />
-
-        <Card
-          icon={<ShoppingCart className="w-6 h-6" />}
-          title="Total Sales"
-          value={analytics.totalSales}
-          color="bg-green-600"
-        />
-
-        <Card
-          icon={<DollarSign className="w-6 h-6" />}
-          title="Revenue"
-          value={`KSH ${(analytics.totalRevenue ?? 0).toLocaleString()}`}
-          color="bg-yellow-500"
-        />
-
-        <Card
-          icon={<AlertTriangle className="w-6 h-6" />}
-          title="Low Stock Alerts"
-          value={analytics.lowStockProducts}
-          color="bg-red-600"
-          onClick={() => router.push("/admin/products?filter=low-stock")}
-        />
-
-        <Card
-          icon={<Activity className="w-6 h-6" />}
+          icon={<UserCheck className="w-6 h-6" />}
           title="Active Users"
           value={analytics.activeUsers}
-          color="bg-cyan-600"
+          color="bg-green-600"
+          onClick={() => router.push("/admin/users?filter=active")}
         />
+
+        <Card
+          icon={<UserX className="w-6 h-6" />}
+          title="Suspended Users"
+          value={analytics.suspendedUsers || 0}
+          color="bg-red-600"
+          onClick={() => router.push("/admin/users?filter=suspended")}
+        />
+
       </div>
 
       {/* QUICK ACTIONS */}
       <div className="bg-white rounded-2xl shadow border p-6">
 
         <h2 className="text-xl font-bold text-slate-900 mb-6">
-          Quick Actions
+          User Management Actions
         </h2>
 
         <div className="grid md:grid-cols-3 gap-4">
 
           <ActionCard
             title="Manage Users"
-            desc="View, search and manage all users"
+            desc="Search, suspend, activate or delete users"
             onClick={() => router.push("/admin/users")}
           />
 
           <ActionCard
-            title="Products"
-            desc="Inventory & stock management"
-            onClick={() => router.push("/admin/products")}
+            title="Account Security"
+            desc="Reset passwords and manage access control"
+            onClick={() => router.push("/admin/users?tab=security")}
           />
 
           <ActionCard
-            title="Sales Analytics"
-            desc="View revenue and performance"
-            onClick={() => router.push("/admin/sales")}
+            title="Audit Logs"
+            desc="Track user activity across platform"
+            onClick={() => router.push("/admin/audit")}
           />
 
         </div>
@@ -165,7 +145,7 @@ function Card({
   return (
     <div
       onClick={onClick}
-      className={`cursor-pointer bg-white border rounded-2xl p-6 shadow-sm hover:shadow-lg transition`}
+      className="cursor-pointer bg-white border rounded-2xl p-6 shadow-sm hover:shadow-lg transition"
     >
       <div className="flex items-center justify-between">
         <div className={`p-3 rounded-xl text-white ${color}`}>
