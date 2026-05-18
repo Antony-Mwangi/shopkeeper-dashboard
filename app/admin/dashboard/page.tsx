@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import StatsCard from "@/app/admin/components/StatsCard";
 
 type Analytics = {
@@ -22,6 +23,8 @@ type User = {
 };
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
+
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,12 +86,15 @@ export default function AdminDashboardPage() {
       {/* STATS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
 
-        <StatsCard
-          title="Total Users"
-          value={analytics.totalUsers}
-          icon="👥"
-          color="from-blue-600 to-blue-700"
-        />
+        {/* CLICKABLE USERS CARD */}
+        <div onClick={() => router.push("/admin/users")} className="cursor-pointer">
+          <StatsCard
+            title="Total Users"
+            value={analytics.totalUsers}
+            icon="👥"
+            color="from-blue-600 to-blue-700"
+          />
+        </div>
 
         <StatsCard
           title="Total Products"
@@ -129,9 +135,22 @@ export default function AdminDashboardPage() {
       {/* USER MANAGEMENT SECTION */}
       <div className="bg-white rounded-2xl shadow border p-6">
 
-        <h2 className="text-xl font-bold text-gray-900 mb-5">
-          User Management
-        </h2>
+        {/* CLICKABLE HEADER */}
+        <div className="flex justify-between items-center mb-5">
+          <h2
+            onClick={() => router.push("/admin/users")}
+            className="text-xl font-bold text-gray-900 cursor-pointer hover:text-blue-600"
+          >
+            User Management
+          </h2>
+
+          <button
+            onClick={() => router.push("/admin/users")}
+            className="text-sm bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            View All Users
+          </button>
+        </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -192,6 +211,7 @@ export default function AdminDashboardPage() {
           </table>
         </div>
       </div>
+
     </div>
   );
 }
