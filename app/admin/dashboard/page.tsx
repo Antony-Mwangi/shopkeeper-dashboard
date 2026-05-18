@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import StatsCard from "@/app/admin/components/StatsCard";
+ import StatsCard from "@/app/admin/components/StatsCard";
 
 type Analytics = {
   totalUsers: number;
