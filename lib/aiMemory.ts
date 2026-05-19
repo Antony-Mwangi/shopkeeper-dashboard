@@ -87,7 +87,17 @@ export type MemoryValue =
   | MemoryValue[]
   | { [key: string]: MemoryValue };
 
-//STRUCTURED MEMORY 
+/* ================= CHAT MESSAGE ================= */
+
+export type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: number;
+  updatedAt?: number;
+};
+
+/* ================= USER PREFERENCES ================= */
 
 export type Preferences = {
   currency?: "KSH" | string;
@@ -95,28 +105,21 @@ export type Preferences = {
   region?: string;
 };
 
+/* ================= FINANCE CONTEXT ================= */
+
 export type FinanceContext = {
   currency?: string;
   currencySymbol?: string;
 };
 
-//CHAT MESSAGE 
-
-export type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  createdAt: string;
-  updatedAt?: string;
-};
-
-//MAIN MEMORY TYPE 
+/* ================= MAIN MEMORY ================= */
 
 export type Memory = {
   preferences?: Preferences;
   finance?: FinanceContext;
 
-  chats?: ChatMessage[];
+  /* CHAT HISTORY */
+  messages?: ChatMessage[];
 
   [key: string]:
     | MemoryValue
@@ -126,17 +129,17 @@ export type Memory = {
     | undefined;
 };
 
-// IN-MEMORY STORE 
+/* ================= STORE ================= */
 
 const memoryStore = new Map<string, Memory>();
 
-// GET MEMORY
+/* ================= GET MEMORY ================= */
 
 export function getMemory(userId: string): Memory {
   return memoryStore.get(userId) ?? {};
 }
 
-// DEEP MERGE 
+/* ================= DEEP MERGE ================= */
 
 function deepMerge(target: Memory, source: Memory): Memory {
   const result: Memory = { ...target };
@@ -161,97 +164,136 @@ function deepMerge(target: Memory, source: Memory): Memory {
   return result;
 }
 
-//UPDATE MEMORY
+/* ================= UPDATE MEMORY ================= */
 
-export function updateMemory(userId: string, data: Memory): void {
+export function updateMemory(
+  userId: string,
+  data: Memory
+): void {
   const existing = memoryStore.get(userId) ?? {};
+
   const updated = deepMerge(existing, data);
 
   memoryStore.set(userId, updated);
 }
 
-//SET MEMORY
+/* ================= SET MEMORY ================= */
 
-export function setMemory(userId: string, data: Memory): void {
+export function setMemory(
+  userId: string,
+  data: Memory
+): void {
   memoryStore.set(userId, data);
 }
 
-//CLEAR MEMORY 
+/* ================= CLEAR MEMORY ================= */
 
 export function clearMemory(userId: string): void {
   memoryStore.delete(userId);
 }
 
+/* =========================================================
+   CHAT MESSAGE SYSTEM
+========================================================= */
 
-//GET CHAT HISTORY 
+/* ================= ADD MESSAGE ================= */
 
-export function getChatHistory(userId: string): ChatMessage[] {
-  const memory = getMemory(userId);
-
-  return memory.chats ?? [];
-}
-
-//ADD CHAT MESSAGE 
-
-export function addChatMessage(
+export function addMessage(
   userId: string,
   message: Omit<ChatMessage, "id" | "createdAt">
-): ChatMessage {
+) {
   const memory = getMemory(userId);
 
   const newMessage: ChatMessage = {
     id: crypto.randomUUID(),
-    role: message.role,
-    content: message.content,
-    createdAt: new Date().toISOString(),
+    createdAt: Date.now(),
+    ...message,
   };
 
-  const chats = [...(memory.chats ?? []), newMessage];
+  const messages = memory.messages || [];
 
-  updateMemory(userId, { chats });
+  memory.messages = [...messages, newMessage];
+
+  memoryStore.set(userId, memory);
 
   return newMessage;
 }
 
-// EDIT CHAT MESSAGE 
+/* ================= GET MESSAGES ================= */
 
-export function editChatMessage(
+export function getMessages(
+  userId: string
+): ChatMessage[] {
+  return getMemory(userId).messages || [];
+}
+
+/* ================= DELETE MESSAGE ================= */
+
+export function deleteMessage(
+  userId: string,
+  messageId: string
+) {
+  const memory = getMemory(userId);
+
+  memory.messages =
+    memory.messages?.filter(
+      (msg) => msg.id !== messageId
+    ) || [];
+
+  memoryStore.set(userId, memory);
+}
+
+/* ================= EDIT MESSAGE ================= */
+
+export function editMessage(
   userId: string,
   messageId: string,
   newContent: string
-): boolean {
+) {
   const memory = getMemory(userId);
 
-  const chats = (memory.chats ?? []).map((msg) => {
+  const messages = memory.messages || [];
+
+  const updatedMessages = messages.map((msg) => {
     if (msg.id === messageId) {
       return {
         ...msg,
         content: newContent,
-        updatedAt: new Date().toISOString(),
+        updatedAt: Date.now(),
       };
     }
 
     return msg;
   });
 
-  updateMemory(userId, { chats });
+  memory.messages = updatedMessages;
 
-  return true;
+  memoryStore.set(userId, memory);
 }
 
-//DELETE CHAT MESSAGE 
+/* ================= REMOVE AI RESPONSES AFTER EDIT ================= */
+/*
+   When a user edits a message,
+   remove ALL assistant replies after that point
+   so AI can regenerate fresh responses.
+*/
 
-export function deleteChatMessage(
+export function regenerateFromMessage(
   userId: string,
   messageId: string
-): boolean {
+) {
   const memory = getMemory(userId);
 
-  const chats = (memory.chats ?? []).filter(
-    (msg) => msg.id !== messageId
+  const messages = memory.messages || [];
+
+  const index = messages.findIndex(
+    (msg) => msg.id === messageId
   );
 
-  updateMemory(userId, { chats });
+  if (index === -1) return;
 
-  return true;
+  // keep messages up to edited user message
+  memory.messages = messages.slice(0, index + 1);
+
+  memoryStore.set(userId, memory);
 }
