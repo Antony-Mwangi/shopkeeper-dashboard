@@ -187,11 +187,14 @@ type ApiMessage = {
 
 export default function AiChat() {
   const [open, setOpen] = useState(false);
+
   const [input, setInput] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingText, setEditingText] = useState("");
+
+  const [editText, setEditText] = useState("");
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -203,8 +206,6 @@ export default function AiChat() {
     },
   ]);
 
-  /* ================= AUTO SCROLL ================= */
-
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop =
@@ -214,20 +215,28 @@ export default function AiChat() {
 
   /* ================= SEND MESSAGE ================= */
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+  const sendMessage = async (
+    overrideMessages?: Msg[],
+    overrideInput?: string
+  ) => {
+    const finalInput = overrideInput || input;
 
-    const userText = input;
+    if (!finalInput.trim() || loading) return;
 
-    const newUserMessage: Msg = {
+    const userMessage: Msg = {
       id: crypto.randomUUID(),
       role: "user",
-      text: userText,
+      text: finalInput,
     };
 
-    setMessages((prev) => [...prev, newUserMessage]);
+    const updatedMessages = overrideMessages
+      ? [...overrideMessages, userMessage]
+      : [...messages, userMessage];
+
+    setMessages(updatedMessages);
 
     setInput("");
+
     setLoading(true);
 
     try {
@@ -238,9 +247,9 @@ export default function AiChat() {
         },
 
         body: JSON.stringify({
-          message: userText,
+          message: finalInput,
 
-          history: messages.map(
+          history: updatedMessages.map(
             (m): ApiMessage => ({
               role:
                 m.role === "user"
@@ -259,16 +268,19 @@ export default function AiChat() {
 
       const data = await res.json();
 
-      const aiMessage: Msg = {
-        id: crypto.randomUUID(),
-        role: "ai",
-        text: data.reply || "No response.",
-      };
+      setMessages((prev) => [
+        ...prev,
 
-      setMessages((prev) => [...prev, aiMessage]);
+        {
+          id: crypto.randomUUID(),
+          role: "ai",
+          text: data.reply || "No response.",
+        },
+      ]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
+
         {
           id: crypto.randomUUID(),
           role: "ai",
@@ -282,43 +294,112 @@ export default function AiChat() {
 
   /* ================= DELETE MESSAGE ================= */
 
-  function deleteMessage(id: string) {
+  const deleteMessage = (id: string) => {
     setMessages((prev) =>
-      prev.filter((msg) => msg.id !== id)
+      prev.filter((m) => m.id !== id)
     );
-  }
+  };
 
   /* ================= START EDIT ================= */
 
-  function startEdit(message: Msg) {
-    setEditingId(message.id);
-    setEditingText(message.text);
-  }
+  const startEdit = (msg: Msg) => {
+    setEditingId(msg.id);
+    setEditText(msg.text);
+  };
 
-  /* ================= SAVE EDIT ================= */
+  /* ================= SAVE EDIT + REGENERATE ================= */
 
-  function saveEdit() {
+  const saveEdit = async () => {
     if (!editingId) return;
 
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg.id === editingId
-          ? {
-              ...msg,
-              text: editingText,
-            }
-          : msg
-      )
+    const index = messages.findIndex(
+      (m) => m.id === editingId
     );
 
+    if (index === -1) return;
+
+    const updated = [...messages];
+
+    updated[index] = {
+      ...updated[index],
+      text: editText,
+    };
+
+    /*
+      Remove all messages after edited message
+      so AI regenerates fresh response
+    */
+
+    const trimmed = updated.slice(0, index + 1);
+
+    setMessages(trimmed);
+
     setEditingId(null);
-    setEditingText("");
-  }
+
+    const editedMessage = trimmed[index];
+
+    if (editedMessage.role === "user") {
+      setLoading(true);
+
+      try {
+        const res = await fetch("/api/ai/chat", {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            message: editedMessage.text,
+
+            history: trimmed.map(
+              (m): ApiMessage => ({
+                role:
+                  m.role === "user"
+                    ? "user"
+                    : "assistant",
+
+                content: m.text,
+              })
+            ),
+
+            context: {
+              source: "dashboard",
+            },
+          }),
+        });
+
+        const data = await res.json();
+
+        setMessages((prev) => [
+          ...prev,
+
+          {
+            id: crypto.randomUUID(),
+            role: "ai",
+            text:
+              data.reply || "No response.",
+          },
+        ]);
+      } catch {
+        setMessages((prev) => [
+          ...prev,
+
+          {
+            id: crypto.randomUUID(),
+            role: "ai",
+            text: "⚠️ Connection error.",
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   return (
     <div className="font-sans antialiased text-slate-900">
-      {/* ================= CHAT BUTTON ================= */}
-
+      {/* TRIGGER BUTTON */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -328,22 +409,19 @@ export default function AiChat() {
         </button>
       )}
 
-      {/* ================= CHAT WINDOW ================= */}
-
+      {/* CHAT WINDOW */}
       {open && (
         <div
           className="
           fixed z-[60]
           bottom-0 left-0 right-0 h-[60vh]
           sm:bottom-6 sm:right-6 sm:left-auto sm:w-80 sm:h-[480px]
-          bg-white sm:border border-slate-200 shadow-2xl
-          sm:rounded-2xl rounded-t-3xl
+          bg-white sm:border border-slate-200 shadow-2xl sm:rounded-2xl rounded-t-3xl
           overflow-hidden flex flex-col
           animate-in slide-in-from-bottom-4 fade-in duration-200
         "
         >
-          {/* ================= HEADER ================= */}
-
+          {/* HEADER */}
           <div className="bg-slate-50 border-b border-slate-100 p-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-black rounded flex items-center justify-center text-white">
@@ -370,8 +448,7 @@ export default function AiChat() {
             </div>
           </div>
 
-          {/* ================= MESSAGES ================= */}
-
+          {/* MESSAGES */}
           <div
             ref={scrollRef}
             className="flex-1 overflow-y-auto p-4 space-y-3 bg-white scroll-smooth"
@@ -385,85 +462,69 @@ export default function AiChat() {
                     : "justify-start"
                 }`}
               >
-                <div className="group relative max-w-[90%]">
-                  {/* ================= ACTIONS ================= */}
-
-                  <div
-                    className={`
-                      absolute top-0 ${
-                        m.role === "user"
-                          ? "-left-16"
-                          : "-right-16"
-                      }
-                      opacity-0 group-hover:opacity-100
-                      transition flex items-center gap-1
-                    `}
-                  >
-                    {/* EDIT */}
-
-                    <button
-                      onClick={() => startEdit(m)}
-                      className="p-1 rounded-md bg-white border border-slate-200 hover:bg-slate-100 shadow-sm"
-                    >
-                      <Pencil
-                        size={12}
-                        className="text-slate-600"
+                <div
+                  className={`group relative max-w-[90%] px-3 py-2 rounded-xl text-[13px] leading-snug shadow-sm ${
+                    m.role === "user"
+                      ? "bg-black text-white rounded-tr-none"
+                      : "bg-slate-100 text-slate-800 rounded-tl-none border border-slate-200/50"
+                  }`}
+                >
+                  {/* EDIT MODE */}
+                  {editingId === m.id ? (
+                    <div className="space-y-2">
+                      <textarea
+                        value={editText}
+                        onChange={(e) =>
+                          setEditText(e.target.value)
+                        }
+                        className="w-full bg-white text-black rounded p-2 text-xs outline-none"
                       />
-                    </button>
 
-                    {/* DELETE */}
+                      <button
+                        onClick={saveEdit}
+                        className="flex items-center gap-1 text-xs bg-green-600 text-white px-2 py-1 rounded"
+                      >
+                        <Check size={12} />
+                        Save
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {m.text}
 
-                    <button
-                      onClick={() =>
-                        deleteMessage(m.id)
-                      }
-                      className="p-1 rounded-md bg-white border border-slate-200 hover:bg-red-50 shadow-sm"
-                    >
-                      <Trash2
-                        size={12}
-                        className="text-red-500"
-                      />
-                    </button>
-                  </div>
+                      {/* ACTIONS */}
+                      {m.role === "user" && (
+                        <div className="absolute -top-2 -left-16 opacity-0 group-hover:opacity-100 flex gap-1 transition">
+                          <button
+                            onClick={() =>
+                              startEdit(m)
+                            }
+                            className="p-1 rounded bg-white border shadow hover:bg-slate-50"
+                          >
+                            <Pencil
+                              size={12}
+                              className="text-slate-700"
+                            />
+                          </button>
 
-                  {/* ================= MESSAGE ================= */}
-
-                  <div
-                    className={`px-3 py-2 rounded-xl text-[13px] leading-snug shadow-sm ${
-                      m.role === "user"
-                        ? "bg-black text-white rounded-tr-none"
-                        : "bg-slate-100 text-slate-800 rounded-tl-none border border-slate-200/50"
-                    }`}
-                  >
-                    {editingId === m.id ? (
-                      <div className="space-y-2">
-                        <textarea
-                          value={editingText}
-                          onChange={(e) =>
-                            setEditingText(
-                              e.target.value
-                            )
-                          }
-                          className="w-full min-h-[70px] text-sm bg-white text-slate-900 border border-slate-300 rounded-lg p-2 outline-none resize-none"
-                        />
-
-                        <button
-                          onClick={saveEdit}
-                          className="flex items-center gap-1 text-xs bg-black text-white px-3 py-1 rounded-md"
-                        >
-                          <Check size={12} />
-                          Save
-                        </button>
-                      </div>
-                    ) : (
-                      m.text
-                    )}
-                  </div>
+                          <button
+                            onClick={() =>
+                              deleteMessage(m.id)
+                            }
+                            className="p-1 rounded bg-white border shadow hover:bg-slate-50"
+                          >
+                            <Trash2
+                              size={12}
+                              className="text-red-600"
+                            />
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             ))}
-
-            {/* ================= LOADING ================= */}
 
             {loading && (
               <div className="flex gap-1 p-1">
@@ -476,8 +537,7 @@ export default function AiChat() {
             )}
           </div>
 
-          {/* ================= INPUT ================= */}
-
+          {/* INPUT */}
           <div className="p-3 border-t border-slate-100 bg-slate-50/50">
             <div className="relative flex items-center">
               <input
@@ -494,7 +554,7 @@ export default function AiChat() {
               />
 
               <button
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 disabled={
                   loading || !input.trim()
                 }
